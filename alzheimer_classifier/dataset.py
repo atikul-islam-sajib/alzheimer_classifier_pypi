@@ -5,6 +5,9 @@ import zipfile
 import os
 import random
 import matplotlib.pyplot as plt
+import torch
+from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split
 
 class EmptyListException(Exception):
     def __init__(self, message = "A custom exception"):
@@ -47,12 +50,16 @@ class load_data:
         # Normalize the data (assuming you have a method for this)
         X_train, y_train, X_val, y_val = self._split_independent_dependent(TRAIN_DATA = TRAIN_DATA,
                                                                            VAL_DATA   = VAL_DATA)
-        X_train, X_val = self._do_normalization(X_train = X_train,
-                                                X_val   = X_val)
+        X_train, X_val, y_train, y_val = self._do_normalization(X_train = X_train,
+                                                X_val   = X_val,
+                                                y_train = y_train,
+                                                y_val   = y_val)
         self.X_train = X_train
         self.y_train = y_train
         self.X_val   = X_val
         self.y_val   = y_val
+        
+        TRAIN_LOADER, TEST_LOADER, VAL_LOADER = self._create_dataloader(X = X_train, y = y_train, X_val = X_val, y_val = y_val)
     
     def _extract_features(self, DIRECTORY = None):
         """
@@ -132,10 +139,10 @@ class load_data:
                                     |   |__mild(here all the images would be kept)
                                     |   |__moderate(here all the images would be kept)
                                     |__test
-                                    |__very_mild(here all the images would be kept)
-                                    |__no(here all the images would be kept)
-                                    |__mild(here all the images would be kept)
-                                    |__moderate(here all the images would be kept)
+                                        |__very_mild(here all the images would be kept)
+                                        |__no(here all the images would be kept)
+                                        |__mild(here all the images would be kept)
+                                        |__moderate(here all the images would be kept)
                                 ''')
         print("\t" * 2,"_" * 80, '\n')
         print("\t" * 5,"Details of dataset".upper())
@@ -210,7 +217,7 @@ class load_data:
         
         return X_train, y_train, X_val, y_val
         
-    def _do_normalization(self, X_train = None, X_val = None):
+    def _do_normalization(self, X_train = None, X_val = None, y_train = None, y_val = None):
         """
             Normalize the pixel values of the dataset.
 
@@ -232,11 +239,14 @@ class load_data:
     """
         X_train = np.array(X_train)
         X_val   = np.array(X_val)
+        
+        y_train = np.array(y_train)
+        y_val   = np.array(y_val)
 
         X_train = X_train/255
         X_val   = X_val/255
         
-        return X_train, X_val
+        return X_train, X_val, y_train, y_val
     
     def show_plot(self):
         """
@@ -276,31 +286,95 @@ class load_data:
             Returns:
                 None
         """
-        if self.y_train:
-            
+        try:
+
             df = pd.DataFrame(self.y_train, columns = ['train_target'])
             plt.title("Distribution of Train dataset.\n".capitalize())
+            
             df.loc[:, 'train_target'].map({0: 'Mild', 1: 'Moderate', 2: 'No', 3: 'Very Mild'}).\
-                                        value_counts().plot(kind = 'barh')
+                                            value_counts().plot(kind = 'barh')
+                                            
             plt.xlabel("Distribution of train label")
             plt.show()
             
-        else:
-            raise EmptyListException("Empty list".capitalize())
-        
-        print("\n\n")
-        
-        if self.y_val:
+            print("\n\n")
             
-            df = pd.DataFrame(self.y_val, columns = ['val_target'])
-            plt.title("Distribution of validation dataset.\n".capitalize())
-            df.loc[:, 'val_target'].map({0: 'Mild', 1: 'Moderate', 2: 'No', 3: 'Very Mild'}).\
-                                    value_counts().plot(kind = 'barh')
-            plt.xlabel("Distribution of validation label")
-            plt.show()
-            
-        else:
-            raise EmptyListException("Empty list".capitalize())
+            try:    
+                df = pd.DataFrame(self.y_val, columns = ['val_target'])
+                plt.title("Distribution of validation dataset.\n".capitalize())
+                
+                df.loc[:, 'val_target'].map({0: 'Mild', 1: 'Moderate', 2: 'No', 3: 'Very Mild'}).\
+                                            value_counts().plot(kind = 'barh')
+                                            
+                plt.xlabel("Distribution of validation label")   
+                plt.show()
+            except EmptyListException as e:
+                print("A custom exception # {}".format(e))  
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+        
+        except EmptyListException as e:
+            print("A custom exception # {}".format(e))   
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+    
+    def _create_dataloader(self, X = None, y = None, X_val = None, y_val = None):
+        
+        CHANNEL = 3
+        HEIGHT  = 120
+        WIDTH   = 120
+        BATCH_SIZE = 64
+
+        X = X.reshape(X.shape[0], CHANNEL, HEIGHT, WIDTH)
+        X = torch.tensor(data = X, dtype = torch.float32)
+        
+        X_val   = X_val.reshape(X_val.shape[0], CHANNEL, HEIGHT, WIDTH)
+        X_val   = torch.tensor(data = X_val, dtype = torch.float32)
+
+        X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X,
+                                                                                y,
+                                                                                test_size = 0.30,
+                                                                                random_state = 42)
+
+        print("\t" * 5,"X_train (TRAIN DATASET) shape  # {} ".format(X_train_data.shape), '\n')
+        print("\t" * 5,"y_train (TRAIN DATASET) shape  # {} ".format(y_train_data.shape), '\n')
+        print("\t" * 5,"X_test  (TRAIN DATASET) shape  # {} ".format(X_test_data.shape), '\n')
+        print("\t" * 5,"y_test  (TRAIN DATASET) shape  # {} ".format(y_test_data.shape), '\n')
+
+        TRAIN_LOADER = DataLoader(dataset = list(zip(X_train_data, y_train_data)),\
+                                  batch_size = BATCH_SIZE,\
+                                  shuffle = True)
+
+        TEST_LOADER  = DataLoader(dataset = list(zip(X_test_data, y_test_data)),\
+                                  batch_size = BATCH_SIZE,\
+                                  shuffle = True)
+        
+        VAL_LOADER   = DataLoader(dataset = list(zip(X_val, y_val)),
+                                  batch_size = BATCH_SIZE,
+                                  shuffle = True)
+        
+        print("\t" * 2,"_" * 80, '\n')
+        print("\t" * 5, "Batch size of Train # {} ".format(TRAIN_LOADER.batch_size), '\n')
+        print("\t" * 5, "Batch size of Test  # {} ".format(TEST_LOADER.batch_size), '\n')
+
+        print("\t" * 2,"_" * 80, '\n')
+
+        # Extract the data and label
+        train_data, train_label = next(iter(TRAIN_LOADER))
+        test_data, test_label   = next(iter(TEST_LOADER))
+        val_data, val_label     = next(iter(VAL_LOADER))
+
+        print("\t" * 5, "Train data  (TRAIN DATASET) with single batch_size  # {} ".format(train_data.shape), '\n')
+        print("\t" * 5, "Train label (TRAIN DATASET) with single batch_size  # {} ".format(train_label.shape), '\n')
+        print("\t" * 5, "Test data   (TRAIN DATASET) with single batch_size  # {} ".format(test_data.shape), '\n')
+        print("\t" * 5, "Test label  (TRAIN DATASET) with single batch_size  # {} ".format(test_label.shape),'\n')
+        
+        print("\t" * 2,"_" * 80, '\n')
+        
+        print("\t" * 5, "Val data  (VALIDATION DATASET) with single batch_size  # {} ".format(val_data.shape), '\n')
+        print("\t" * 5, "VAL label (VALIDATION DATASET) with single batch_size  # {} ".format(val_label.shape), '\n')
+        
+        return TRAIN_LOADER, TEST_LOADER, VAL_LOADER
         
 if __name__ == "__main__":
     loader = load_data(filename   = 'C:/Users/atiku/Downloads/alzheimer_dataset.zip',
