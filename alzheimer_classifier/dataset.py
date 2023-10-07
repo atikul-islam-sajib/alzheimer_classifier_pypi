@@ -319,7 +319,29 @@ class load_data:
             print(f"An error occurred: {str(e)}")
     
     def _create_dataloader(self, X = None, y = None, X_val = None, y_val = None):
-        
+        """
+            Data Preprocessing and Preparation for Deep Learning Model
+
+            This code performs the following tasks:
+
+            1. Data Preprocessing:
+            - Reshapes and converts the training and validation data into PyTorch tensors.
+
+            2. Data Splitting:
+            - Splits the data into training and testing sets using train_test_split.
+
+            3. Data Loading:
+            - Creates data loaders for training, testing, and validation datasets using DataLoader.
+
+            4. Information Display:
+            - Displays dataset shapes and data loader batch sizes.
+
+            5. Data Extraction:
+            - Extracts data and labels from the data loaders.
+
+            6. Returns:
+            - Returns the created data loaders for further model training and evaluation.
+        """
         CHANNEL = 3
         HEIGHT  = 120
         WIDTH   = 120
