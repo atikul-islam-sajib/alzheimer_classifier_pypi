@@ -398,6 +398,8 @@ class classifier(nn.Module):
         if params.requires_grad:
             print("Layer # {} & Trainable Parameters # {} ".format(layer_name, params.numel()),'')
             TOTAL_PARAMS+=params.numel()
+        else:
+            raise "Model Not Found".title()
       
       print("\t" * 2, "_"*80, "\n")
       print("\t" * 5, "Total Trainable Parameters # {} ".format(TOTAL_PARAMS).upper())
