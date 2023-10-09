@@ -368,17 +368,31 @@ class classifier(nn.Module):
     return LEFT_FC, MIDDLE_FC, RIGHT_FC
 
   def model_details(self):
+      # Create a classifier model with specified input and output features
       model = classifier(input_features = 3, output_features = 4)
       
+      # Print model details header
       print("\t" * 5, " Model Details ","\n")
       print("\t" * 2,"_" * 80, '\n')
+      
+      # Print model parameters
       print(model.parameters)
       print("\t" * 5,"Model Total Trainable Parameters ","\n")
       print("\t" * 2,"_" * 80, '\n')
       
+      # Call the _trainable_parameters method to count and print trainable parameters
       self._trainable_parameters(model = model)
       
   def _trainable_parameters(self, model = None):
+      """
+        Count and print the trainable parameters in a PyTorch model.
+
+        Args:
+            model (nn.Module): The PyTorch model to count parameters for.
+
+        Returns:
+            int: The total number of trainable parameters.
+      """
       TOTAL_PARAMS = 0
       for layer_name, params in model.named_parameters():
         if params.requires_grad:
