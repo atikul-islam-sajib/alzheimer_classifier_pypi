@@ -1,7 +1,6 @@
 from collections import Counter
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, classification_report, confusion_matrix
 import seaborn as sns
-import torch
 import matplotlib.pyplot as plt
 
 def _compute_majority_voting(predicted_label=None):
@@ -25,7 +24,8 @@ def _compute_majority_voting(predicted_label=None):
 
     return voting_predict_labels
 
-def _compute_performance(model=None, dataloader=None, device = None):
+
+def _compute_performance(model=None, dataloader=None):
     """
     Compute the performance of a model on a given data loader.
 
@@ -37,14 +37,17 @@ def _compute_performance(model=None, dataloader=None, device = None):
         tuple: A tuple containing actual labels and predicted labels.
     """
     predict_labels = []
-    actual_labels  = []
+    actual_labels = []
+    IMAGE_ARRAY = []
 
     for (X_batch, y_batch) in dataloader:
+        IMAGE_ARRAY.append(X_batch)
         X_batch = X_batch.to(device)
         y_batch = y_batch.long()
         y_batch = y_batch.to(device)
 
-        model1_prediction, model2_prediction, model3_prediction = model(X_batch)
+        model1_prediction, model2_prediction, model3_prediction = model(
+            X_batch)
 
         model1_prediction = torch.argmax(model1_prediction, dim=1)
         model2_prediction = torch.argmax(model2_prediction, dim=1)
@@ -54,12 +57,14 @@ def _compute_performance(model=None, dataloader=None, device = None):
         model2_prediction = model2_prediction.cpu().detach().flatten().numpy()
         model3_prediction = model3_prediction.cpu().detach().flatten().numpy()
 
-        majority_voting = _compute_majority_voting(predicted_label=zip(model1_prediction, model2_prediction, model3_prediction))
+        majority_voting = _compute_majority_voting(predicted_label=zip(
+            model1_prediction, model2_prediction, model3_prediction))
 
         predict_labels.extend(majority_voting)
         actual_labels.extend(y_batch.cpu().detach().flatten().numpy())
 
-    return actual_labels, predict_labels
+    return IMAGE_ARRAY, actual_labels, predict_labels
+
 
 def _show_classification_report(actual_labels=None, predict_labels=None):
     """
@@ -71,6 +76,7 @@ def _show_classification_report(actual_labels=None, predict_labels=None):
     """
     print(classification_report(actual_labels, predict_labels))
 
+
 def _confusion_matrix(actual_labels=None, predict_labels=None):
     """
     Display a confusion matrix based on actual and predicted labels.
@@ -79,48 +85,45 @@ def _confusion_matrix(actual_labels=None, predict_labels=None):
         actual_labels: Actual ground truth labels.
         predict_labels: Predicted labels.
     """
-    sns.heatmap(confusion_matrix(actual_labels, predict_labels), annot=True, fmt=".1f")
+    sns.heatmap(confusion_matrix(actual_labels, predict_labels),
+                annot=True, fmt=".1f")
     plt.show()
 
-def _plot_test_prediction(actual_labels = None, predict_labels = None):
-    
+
+def _plot_test_prediction(IMAGE=None, actual_labels=None, predict_labels=None):
     """
-    Plot actual and predicted labels alongside corresponding images.
+        Display a grid of sample images and their corresponding labels.
 
-    Parameters:
-    actual_labels (list): List of actual labels (integers) for each image.
-    predict_labels (list): List of predicted labels (integers) for each image.
+        This method shows a grid of sample images from the training data and their corresponding labels.
+        It can be useful for visually inspecting a subset of the dataset.
 
-    Displays a grid of images with their actual and predicted labels for visual inspection.
-    The labels are mapped to categories 'Mild,' 'Moderate,' 'No,' and 'Very Mild' based on integer values.
-
-    Example usage:
-    _plot_test_prediction(actual_labels=[0, 1, 2, 3], predict_labels=[2, 1, 0, 3])
+        Returns:
+            None
     """
-        
-    plt.figure(figsize = (12, 8))
+    IMAGE = IMAGE.reshape(IMAGE.shape[0], 120, 120, 3)
 
-    for index, image in enumerate(actual_labels):
+    plt.figure(figsize=(12, 8))
+
+    for index, image in enumerate(IMAGE):
         plt.subplot(4, 5, index + 1)
-        plt.imshow(image)
-        plt.title('Actual: {} '.format('Mild' if actual_labels[index] == 0\
-            else 'Moderate' if actual_labels[index] == 1\
-            else 'No' if actual_labels[index] == 2\
-            else 'Very Mild'
+        try:
+            plt.imshow(image)
+            plt.title('Actual: {} \n Predicted: {}'.format(
+                'Mild' if actual_labels[index] == 0 else 'Moderate' if actual_labels[
+                    index] == 1 else 'No' if actual_labels[index] == 2 else 'Very Mild',
+                'Mild' if predict_labels[index] == 0 else 'Moderate' if predict_labels[
+                    index] == 1 else 'No' if predict_labels[index] == 2 else 'Very Mild'
             ))
-            
-        plt.title('Predicted {} '.format('Mild' if predict_labels[index] == 0\
-            else 'Moderate' if predict_labels[index] == 1\
-            else 'No' if predict_labels[index] == 2\
-            else 'Very Mild'
-            ))
-            
-        plt.tight_layout()
-        plt.axis("off")
+
+            plt.tight_layout()
+            plt.axis("off")
+        except Exception as e:
+            print("Exception caught {} ".format(e))
 
     plt.show()
 
-def model_performance(model=None, train_loader=None, test_loader=None, device = None):
+
+def model_performance(model=None, train_loader=None, test_loader=None, device=None):
     """
     Compute and display the performance metrics of a model on both training and testing datasets.
 
@@ -130,32 +133,47 @@ def model_performance(model=None, train_loader=None, test_loader=None, device = 
         test_loader: DataLoader for the testing dataset.
         device: The device (e.g., CPU or GPU) to use for evaluation.
     """
-    actual_train_labels, predict_train_labels = _compute_performance(model = model, dataloader = train_loader, device = device)
+    IMAGE, actual_train_labels, predict_train_labels = _compute_performance(
+        model=model, dataloader=train_loader)
 
-    print("Evaluation of Train Dataset with {} records.".format(len(actual_train_labels)), '\n')
+    print("Evaluation of Train Dataset with {} records.".format(
+        len(actual_train_labels)), '\n')
 
-    print("ACCURACY  # {} ".format(accuracy_score(actual_train_labels, predict_train_labels)))
-    print("PRECISION # {} ".format(recall_score(actual_train_labels, predict_train_labels, average='macro')))
-    print("RECALL    # {} ".format(precision_score(actual_train_labels, predict_train_labels, average='macro')))
-    print("F1_SCORE  # {} ".format(f1_score(actual_train_labels, predict_train_labels, average='macro')))
+    print("ACCURACY  # {} ".format(accuracy_score(
+        actual_train_labels, predict_train_labels)))
+    print("PRECISION # {} ".format(recall_score(
+        actual_train_labels, predict_train_labels, average='macro')))
+    print("RECALL    # {} ".format(precision_score(
+        actual_train_labels, predict_train_labels, average='macro')))
+    print("F1_SCORE  # {} ".format(
+        f1_score(actual_train_labels, predict_train_labels, average='macro')))
 
     print("_" * 50, "\n")
 
-    actual_train_labels, predict_train_labels = _compute_performance(model=model, dataloader=test_loader, device = device)
-    
-    _plot_test_prediction(actual_labels = actual_train_labels[0:20], predict_labels = predict_train_labels[0:20])
+    IMAGE, actual_test_labels, predict_test_labels = _compute_performance(
+        model=model, dataloader=test_loader)
 
-    print("Ëvaluation of Test Dataset  {} records.".format(len(actual_train_labels)), '\n')
+    print("Ëvaluation of Test Dataset  {} records.".format(
+        len(actual_train_labels)), '\n')
 
-    print("ACCURACY  # {} ".format(accuracy_score(actual_train_labels, predict_train_labels)))
-    print("PRECISION # {} ".format(recall_score(actual_train_labels, predict_train_labels, average='macro')))
-    print("RECALL    # {} ".format(precision_score(actual_train_labels, predict_train_labels, average='macro')))
-    print("F1_SCORE  # {} ".format(f1_score(actual_train_labels, predict_train_labels, average='macro')))
+    print("ACCURACY  # {} ".format(accuracy_score(
+        actual_test_labels, predict_test_labels)))
+    print("PRECISION # {} ".format(recall_score(
+        actual_test_labels, predict_test_labels, average='macro')))
+    print("RECALL    # {} ".format(precision_score(
+        actual_test_labels, predict_test_labels, average='macro')))
+    print("F1_SCORE  # {} ".format(
+        f1_score(actual_test_labels, predict_test_labels, average='macro')))
 
     print("_" * 50, "\n")
 
     print("Classification report for test dataset\n")
-    _show_classification_report(actual_labels=actual_train_labels, predict_labels=predict_train_labels)
+    _show_classification_report(
+        actual_labels=actual_train_labels, predict_labels=predict_train_labels)
 
     print("Confusion matrix for test dataset\n")
-    _confusion_matrix(actual_labels=actual_train_labels, predict_labels=predict_train_labels)
+    _confusion_matrix(actual_labels=actual_train_labels,
+                      predict_labels=predict_train_labels)
+
+    _plot_test_prediction(
+        IMAGE=IMAGE[0][0:20], actual_labels=actual_test_labels[0:20], predict_labels=predict_test_labels[0:20])
