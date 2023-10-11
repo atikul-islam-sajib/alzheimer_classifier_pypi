@@ -347,7 +347,7 @@ class load_data:
         CHANNEL = 3
         HEIGHT  = 120
         WIDTH   = 120
-        BATCH_SIZE = 64
+        BATCH_SIZE = 128
 
         X = X.reshape(X.shape[0], CHANNEL, HEIGHT, WIDTH)
         X = torch.tensor(data = X, dtype = torch.float32)
