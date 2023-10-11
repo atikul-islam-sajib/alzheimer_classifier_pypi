@@ -2,6 +2,7 @@ from collections import Counter
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, classification_report, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
+import torch
 
 def _compute_majority_voting(predicted_label=None):
     """
@@ -25,7 +26,7 @@ def _compute_majority_voting(predicted_label=None):
     return voting_predict_labels
 
 
-def _compute_performance(model=None, dataloader=None):
+def _compute_performance(model=None, dataloader=None, device = None):
     """
     Compute the performance of a model on a given data loader.
 
@@ -134,7 +135,7 @@ def model_performance(model=None, train_loader=None, test_loader=None, device=No
         device: The device (e.g., CPU or GPU) to use for evaluation.
     """
     IMAGE, actual_train_labels, predict_train_labels = _compute_performance(
-        model=model, dataloader=train_loader)
+        model=model, dataloader=train_loader, device=device)
 
     print("Evaluation of Train Dataset with {} records.".format(
         len(actual_train_labels)), '\n')
