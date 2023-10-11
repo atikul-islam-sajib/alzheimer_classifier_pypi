@@ -75,6 +75,8 @@ class Trainer:
                         'm2_val_acc'   : [],
                         'm3_val_acc'   : []
                         }
+        
+        self.get_models = list()
 
     def _connect_GPU(self, independent_data=None, dependent_data=None):
         """
@@ -439,6 +441,8 @@ class Trainer:
                           model3_val_acc    = model3_val_accuracy,
                           running_epochs    = epoch,
                           total_epochs      = TOTAL_EPOCHS)
-            
+
+        self.get_model.append(self.classifier)
+          
 if __name__ == "__main__":
   trainer_ = Trainer(classifier = None, device = None)
