@@ -44,6 +44,7 @@ def _compute_performance(model=None, dataloader=None, device = None):
     for (X_batch, y_batch) in dataloader:
         IMAGE_ARRAY.append(X_batch)
         X_batch = X_batch.to(device)
+        X_batch = X_batch.float()
         y_batch = y_batch.long()
         y_batch = y_batch.to(device)
 
