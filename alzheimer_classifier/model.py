@@ -73,6 +73,7 @@ class classifier(nn.Module):
         nn.ReLU(),
         nn.MaxPool2d(kernel_size = (2, 2),
                      stride = (2, 2)),
+        nn.Dropout(p = 0.5),
 
         nn.Conv2d(in_channels  = 16,
                   out_channels = 8,
@@ -81,7 +82,8 @@ class classifier(nn.Module):
                   padding = 1),
         nn.ReLU(),
         nn.MaxPool2d(kernel_size = (2, 2),
-                     stride = (2, 2))
+                     stride = (2, 2)),
+        nn.Dropout(p = 0.3)
     )
 
   def middle_conv_layer(self):
@@ -126,6 +128,7 @@ class classifier(nn.Module):
         nn.ReLU(),
         nn.MaxPool2d(kernel_size = (2, 2),
                      stride = (2, 2)),
+        nn.Dropout(p = 0.4),
 
         nn.Conv2d(in_channels  = 16,
                   out_channels = 8,
@@ -179,6 +182,7 @@ class classifier(nn.Module):
         nn.ReLU(),
         nn.MaxPool2d(kernel_size = (2, 2),
                      stride = (2, 2)),
+        nn.Dropout(p = 0.3),
 
         nn.Conv2d(in_channels  = 16,
                   out_channels = 8,
@@ -187,7 +191,8 @@ class classifier(nn.Module):
                   padding = 1),
         nn.ReLU(),
         nn.MaxPool2d(kernel_size = (2, 2),
-                     stride = (2, 2))
+                     stride = (2, 2)),
+        nn.Dropout(p = 0.3)
     )
 
   def fully_connected_layer(self):
@@ -235,12 +240,12 @@ class classifier(nn.Module):
         nn.Linear(in_features  = 128,
                   out_features = 64),
         nn.ReLU(),
-        nn.Dropout(p = 0.5),
+        nn.Dropout(p = 0.4),
 
         nn.Linear(in_features  = 64,
                   out_features = 16),
         nn.ReLU(),
-        nn.Dropout(p = 0.5),
+        nn.Dropout(p = 0.3),
 
         nn.Linear(in_features  = 16,
                   out_features = 4),
@@ -275,12 +280,12 @@ class classifier(nn.Module):
         nn.Linear(in_features  = 256,
                   out_features = 64),
         nn.ReLU(),
-        nn.Dropout(p = 0.5),
+        nn.Dropout(p = 0.4),
 
         nn.Linear(in_features  = 64,
                   out_features = 32),
         nn.ReLU(),
-        nn.Dropout(p = 0.5),
+        nn.Dropout(p = 0.4),
 
         nn.Linear(in_features  = 32,
                   out_features = 4),
@@ -315,7 +320,7 @@ class classifier(nn.Module):
         nn.Linear(in_features  = 256,
                   out_features = 32),
         nn.ReLU(),
-        nn.Dropout(p = 0.3),
+        nn.Dropout(p = 0.4),
 
         nn.Linear(in_features  = 32,
                   out_features = 16),
