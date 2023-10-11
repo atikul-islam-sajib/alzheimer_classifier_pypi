@@ -60,6 +60,8 @@ class load_data:
         self.y_val   = y_val
         
         TRAIN_LOADER, TEST_LOADER, VAL_LOADER = self._create_dataloader(X = X_train, y = y_train, X_val = X_val, y_val = y_val)
+        
+        return TRAIN_LOADER, TEST_LOADER
     
     def _extract_features(self, DIRECTORY = None):
         """
@@ -401,7 +403,7 @@ class load_data:
 if __name__ == "__main__":
     loader = load_data(filename   = 'C:/Users/atiku/Downloads/alzheimer_dataset.zip',
                        extract_to = 'C:/Users/atiku/Downloads/')
-    loader.dataloader()
+    train_loader, test_loader = loader.dataloader()
     
     loader.show_plot()
     loader.show_distribution()
