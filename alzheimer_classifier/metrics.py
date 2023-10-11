@@ -82,7 +82,7 @@ def _confusion_matrix(actual_labels=None, predict_labels=None):
     sns.heatmap(confusion_matrix(actual_labels, predict_labels), annot=True, fmt=".1f")
     plt.show()
 
-def _plot_test_prediction(self, actual_labels = None, predict_labels = None):
+def _plot_test_prediction(actual_labels = None, predict_labels = None):
     
     """
     Plot actual and predicted labels alongside corresponding images.
