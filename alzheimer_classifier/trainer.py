@@ -179,20 +179,20 @@ class Trainer:
         """
         return accuracy_score(actual_label, predicted_label)
 
-    def _display(self, model1_train_loss=None,
-                 model2_train_loss=None,
-                 model3_train_loss=None,
-                 model1_train_acc=None,
-                 model2_train_acc=None,
-                 model3_train_acc=None,
-                 model1_val_loss=None,
-                 model2_val_loss=None,
-                 model3_val_loss=None,
-                 model1_val_acc=None,
-                 model2_val_acc=None,
-                 model3_val_acc=None,
-                 running_epochs=None,
-                 total_epochs=None):
+    def _display(self, model1_train_loss = None,
+                 model2_train_loss       = None,
+                 model3_train_loss       = None,
+                 model1_train_acc        = None,
+                 model2_train_acc        = None,
+                 model3_train_acc        = None,
+                 model1_val_loss         = None,
+                 model2_val_loss         = None,
+                 model3_val_loss         = None,
+                 model1_val_acc          = None,
+                 model2_val_acc          = None,
+                 model3_val_acc          = None,
+                 running_epochs          = None,
+                 total_epochs            = None):
         """
         Display training and validation metrics for multiple models during the training process.
 
