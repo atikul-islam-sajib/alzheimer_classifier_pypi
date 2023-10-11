@@ -88,7 +88,7 @@ class Trainer:
         """
         independent_data = independent_data.to(self.device)
         dependent_data = dependent_data.long()
-        dependent_data = dependent_data.to(device)
+        dependent_data = dependent_data.to(self.device)
 
         return independent_data, dependent_data
 
