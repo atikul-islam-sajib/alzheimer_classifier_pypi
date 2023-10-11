@@ -37,7 +37,7 @@ def _compute_performance(model=None, dataloader=None, device = None):
         tuple: A tuple containing actual labels and predicted labels.
     """
     predict_labels = []
-    actual_labels = []
+    actual_labels  = []
 
     for (X_batch, y_batch) in dataloader:
         X_batch = X_batch.to(device)
@@ -82,6 +82,44 @@ def _confusion_matrix(actual_labels=None, predict_labels=None):
     sns.heatmap(confusion_matrix(actual_labels, predict_labels), annot=True, fmt=".1f")
     plt.show()
 
+def _plot_test_prediction(self, actual_labels = None, predict_labels = None):
+    
+    """
+    Plot actual and predicted labels alongside corresponding images.
+
+    Parameters:
+    actual_labels (list): List of actual labels (integers) for each image.
+    predict_labels (list): List of predicted labels (integers) for each image.
+
+    Displays a grid of images with their actual and predicted labels for visual inspection.
+    The labels are mapped to categories 'Mild,' 'Moderate,' 'No,' and 'Very Mild' based on integer values.
+
+    Example usage:
+    _plot_test_prediction(actual_labels=[0, 1, 2, 3], predict_labels=[2, 1, 0, 3])
+    """
+        
+    plt.figure(figsize = (12, 8))
+
+    for index, image in enumerate(actual_labels):
+        plt.subplot(4, 5, index + 1)
+        plt.imshow(image)
+        plt.title('Actual: {} '.format('Mild' if actual_labels[index] == 0\
+            else 'Moderate' if actual_labels[index] == 1\
+            else 'No' if actual_labels[index] == 2\
+            else 'Very Mild'
+            ))
+            
+        plt.title('Predicted {} '.format('Mild' if predict_labels[index] == 0\
+            else 'Moderate' if predict_labels[index] == 1\
+            else 'No' if predict_labels[index] == 2\
+            else 'Very Mild'
+            ))
+            
+        plt.tight_layout()
+        plt.axis("off")
+
+    plt.show()
+
 def model_performance(model=None, train_loader=None, test_loader=None, device = None):
     """
     Compute and display the performance metrics of a model on both training and testing datasets.
@@ -104,6 +142,8 @@ def model_performance(model=None, train_loader=None, test_loader=None, device = 
     print("_" * 50, "\n")
 
     actual_train_labels, predict_train_labels = _compute_performance(model=model, dataloader=test_loader, device = device)
+    
+    _plot_test_prediction(actual_labels = actual_train_labels[0:20], predict_labels = predict_train_labels[0:20])
 
     print("Ëvaluation of Test Dataset  {} records.".format(len(actual_train_labels)), '\n')
 
