@@ -73,7 +73,7 @@ class Trainer:
                         'm3_val_loss'  : [],
                         'm1_val_acc'   : [],
                         'm2_val_acc'   : [],
-                        'm3_val_acc'   :  []
+                        'm3_val_acc'   : []
                         }
 
     def _connect_GPU(self, independent_data=None, dependent_data=None):
