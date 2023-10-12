@@ -260,7 +260,7 @@ class Trainer:
             axis[1][i].plot(
                 self.history[f'm{i+1}_train_acc'], label=f'{model_names[i]} Train Accuracy', color=colors[i])
             axis[1][i].plot(
-                self.history[f'm{i+1}_val_acc'], label=f'{model_names[i]} Validation Accuracy', linestyle='+', color=colors[i])
+                self.history[f'm{i+1}_val_acc'], label=f'{model_names[i]} Validation Accuracy', linestyle='--', color=colors[i])
             axis[1][i].set_title(f'{model_names[i]} Accuracy')
             axis[1][i].legend()
 
