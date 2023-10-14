@@ -28,13 +28,14 @@ class load_data:
         """
         self.filename = filename
         self.extract_to = extract_to
+        self.batch_size = 128
 
         self.X_train = list()
         self.y_train = list()
         self.X_val = list()
         self.y_val = list()
 
-    def data_augmentation(self, samples=100):
+    def data_augmentation(self, samples = 1000):
         """
         Perform data augmentation on a specified file.
 
@@ -64,7 +65,7 @@ class load_data:
                                     extract_to=self.extract_to)
         augmentation.perform_augmentation(samples=samples)
 
-    def dataloader(self):
+    def dataloader(self, batch_size = 128):
         """
             Load and process the dataset.
 
@@ -81,6 +82,8 @@ class load_data:
             Raises:
                 FolderException: If the dataset folder structure is not as expected.
         """
+        # Define the batch_size of the dataset
+        self.batch_size = batch_size
         feature_extraction = FeatureExtraction(
             filename=self.filename, extract_to=self.extract_to)
         feature_extraction.unzip_folder()
@@ -90,7 +93,8 @@ class load_data:
                 DIRECTORY=os.path.join(self.extract_to, 'alzheimer_dataset/dataset'))
             TRAIN_LOADER, TEST_LOADER = self._preprocessing_dataset(
                 train_data=train_data,
-                val_data=val_data)
+                val_data=val_data,
+                batch_size = self.batch_size)
 
             return TRAIN_LOADER, TEST_LOADER
         else:
@@ -99,11 +103,12 @@ class load_data:
                                        ))
             TRAIN_LOADER, TEST_LOADER = self._preprocessing_dataset(
                 train_data=train_data,
-                val_data=val_data)
+                val_data=val_data,
+                batch_size = self.batch_size)
 
             return TRAIN_LOADER, TEST_LOADER
 
-    def _preprocessing_dataset(self, train_data=None, val_data=None):
+    def _preprocessing_dataset(self, train_data=None, val_data=None, batch_size = 128):
 
         # Randomly shuffle the data
         random.shuffle(train_data)
@@ -122,7 +127,7 @@ class load_data:
         self.y_val = y_val
 
         TRAIN_LOADER, TEST_LOADER, VAL_LOADER = self._create_dataloader(
-            X=X_train, y=y_train, X_val=X_val, y_val=y_val)
+            X=X_train, y=y_train, X_val=X_val, y_val=y_val, batch_size = batch_size)
 
         return TRAIN_LOADER, TEST_LOADER
 
@@ -275,7 +280,7 @@ class load_data:
         except Exception as e:
             print(f"An error occurred: {str(e)}")
 
-    def _create_dataloader(self, X=None, y=None, X_val=None, y_val=None):
+    def _create_dataloader(self, X=None, y=None, X_val=None, y_val=None, batch_size = 128):
         """
             Data Preprocessing and Preparation for Deep Learning Model
 
@@ -302,7 +307,7 @@ class load_data:
         CHANNEL = 3
         HEIGHT  = 120
         WIDTH   = 120
-        BATCH_SIZE = 128
+        BATCH_SIZE = batch_size
 
         X = X.reshape(X.shape[0], CHANNEL, HEIGHT, WIDTH)
         X = torch.tensor(data=X, dtype=torch.float32)
@@ -362,9 +367,9 @@ if __name__ == "__main__":
     loader = load_data(filename='D:/alzheimer_dataset/alzheimer_dataset.zip',
                        extract_to='D:/alzheimer_dataset/')
 
-    loader.data_augmentation(samples=10240*2)
+    loader.data_augmentation(samples = 10240*2)
     # train_loader, test_loader = loader.dataloader()
-    loader.dataloader()
+    loader.dataloader(batch_size = 256)
 
     loader.show_plot()
     loader.show_distribution()

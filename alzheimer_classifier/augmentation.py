@@ -94,7 +94,7 @@ class Augmentation:
         pipeline.sample(samples)  # Replace 1000 with the desired number of augmented images
         
 
-# if __name__ == "__main__":
-    # augmentation = Augmentation(filename   = 'E:/alzheimer_classifier/alzheimer_dataset.zip',
-    #                             extract_to = 'E:/alzheimer_classifier/')
-    # augmentation.perform_augmentation(samples = 10 * 2)
+if __name__ == "__main__":
+    augmentation = Augmentation(filename   = 'E:/alzheimer_classifier/alzheimer_dataset.zip',
+                                extract_to = 'E:/alzheimer_classifier/')
+    augmentation.perform_augmentation(samples = 10 * 2)
