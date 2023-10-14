@@ -135,9 +135,9 @@ def model_performance(model=None, train_loader=None, test_loader=None, device = 
     print("_" * 50, "\n")
 
     print("Classification report for test dataset\n")
-    _show_classification_report(actual_labels=actual_train_labels, predict_labels=predict_train_labels)
+    _show_classification_report(actual_labels=actual_test_labels, predict_labels=predict_test_labels)
 
     print("Confusion matrix for test dataset\n")
-    _confusion_matrix(actual_labels=actual_train_labels, predict_labels=predict_train_labels)
+    _confusion_matrix(actual_labels=actual_test_labels, predict_labels=predict_test_labels)
 
     _plot_test_prediction(IMAGE = IMAGE[0][0:20], actual_labels = actual_test_labels[0:20], predict_labels = predict_test_labels[0:20])
