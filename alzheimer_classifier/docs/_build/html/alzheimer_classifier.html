@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>alzheimer_classifier package &mdash; alzheimer 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=e3a6060d"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            alzheimer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">alzheimer_classifier package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-alzheimer_classifier.dataset">alzheimer_classifier.dataset module</a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.dataset.EmptyListException"><code class="docutils literal notranslate"><span class="pre">EmptyListException</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data"><code class="docutils literal notranslate"><span class="pre">load_data</span></code></a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data.dataloader"><code class="docutils literal notranslate"><span class="pre">load_data.dataloader()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data.show_distribution"><code class="docutils literal notranslate"><span class="pre">load_data.show_distribution()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data.show_plot"><code class="docutils literal notranslate"><span class="pre">load_data.show_plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-alzheimer_classifier.metrics">alzheimer_classifier.metrics module</a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.metrics.model_performance"><code class="docutils literal notranslate"><span class="pre">model_performance()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-alzheimer_classifier.model">alzheimer_classifier.model module</a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier"><code class="docutils literal notranslate"><span class="pre">classifier</span></code></a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.LEFT_CONV"><code class="docutils literal notranslate"><span class="pre">classifier.LEFT_CONV</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.MIDDLE_CONV"><code class="docutils literal notranslate"><span class="pre">classifier.MIDDLE_CONV</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.RIGHT_CONV"><code class="docutils literal notranslate"><span class="pre">classifier.RIGHT_CONV</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.FC_LAYER"><code class="docutils literal notranslate"><span class="pre">classifier.FC_LAYER</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.LEFT_FC"><code class="docutils literal notranslate"><span class="pre">classifier.LEFT_FC</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.MIDD_FC"><code class="docutils literal notranslate"><span class="pre">classifier.MIDD_FC</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.RIGHT_FC"><code class="docutils literal notranslate"><span class="pre">classifier.RIGHT_FC</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.forward"><code class="docutils literal notranslate"><span class="pre">classifier.forward()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.fully_connected_layer"><code class="docutils literal notranslate"><span class="pre">classifier.fully_connected_layer()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.left_conv_layer"><code class="docutils literal notranslate"><span class="pre">classifier.left_conv_layer()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.left_fc_layer"><code class="docutils literal notranslate"><span class="pre">classifier.left_fc_layer()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.middle_conv_layer"><code class="docutils literal notranslate"><span class="pre">classifier.middle_conv_layer()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.middle_fc_layer"><code class="docutils literal notranslate"><span class="pre">classifier.middle_fc_layer()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.model_details"><code class="docutils literal notranslate"><span class="pre">classifier.model_details()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.right_conv_layer"><code class="docutils literal notranslate"><span class="pre">classifier.right_conv_layer()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.right_fc_layer"><code class="docutils literal notranslate"><span class="pre">classifier.right_fc_layer()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-alzheimer_classifier.trainer">alzheimer_classifier.trainer module</a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer"><code class="docutils literal notranslate"><span class="pre">Trainer</span></code></a><ul>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model1_loss_function"><code class="docutils literal notranslate"><span class="pre">Trainer.model1_loss_function</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model2_loss_function"><code class="docutils literal notranslate"><span class="pre">Trainer.model2_loss_function</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model3_loss_function"><code class="docutils literal notranslate"><span class="pre">Trainer.model3_loss_function</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model1_lr"><code class="docutils literal notranslate"><span class="pre">Trainer.model1_lr</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model2_lr"><code class="docutils literal notranslate"><span class="pre">Trainer.model2_lr</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model3_lr"><code class="docutils literal notranslate"><span class="pre">Trainer.model3_lr</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model1_optimizer"><code class="docutils literal notranslate"><span class="pre">Trainer.model1_optimizer</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model2_optimizer"><code class="docutils literal notranslate"><span class="pre">Trainer.model2_optimizer</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model3_optimizer"><code class="docutils literal notranslate"><span class="pre">Trainer.model3_optimizer</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL1_ACCURACY"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL1_ACCURACY</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL2_ACCURACY"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL2_ACCURACY</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL3_ACCURACY"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL3_ACCURACY</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL1_TOTAL_LOSS"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL1_TOTAL_LOSS</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL2_TOTAL_LOSS"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL2_TOTAL_LOSS</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL3_TOTAL_LOSS"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL3_TOTAL_LOSS</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.performance"><code class="docutils literal notranslate"><span class="pre">Trainer.performance()</span></code></a></li>
+<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.train"><code class="docutils literal notranslate"><span class="pre">Trainer.train()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-alzheimer_classifier">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">alzheimer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">alzheimer_classifier package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/alzheimer_classifier.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="alzheimer-classifier-package">
+<h1>alzheimer_classifier package<a class="headerlink" href="#alzheimer-classifier-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-alzheimer_classifier.dataset">
+<span id="alzheimer-classifier-dataset-module"></span><h2>alzheimer_classifier.dataset module<a class="headerlink" href="#module-alzheimer_classifier.dataset" title="Link to this heading"></a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="alzheimer_classifier.dataset.EmptyListException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">alzheimer_classifier.dataset.</span></span><span class="sig-name descname"><span class="pre">EmptyListException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'A</span> <span class="pre">custom</span> <span class="pre">exception'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/dataset.html#EmptyListException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.dataset.EmptyListException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="alzheimer_classifier.dataset.load_data">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">alzheimer_classifier.dataset.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/dataset.html#load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.dataset.load_data" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.dataset.load_data.dataloader">
+<span class="sig-name descname"><span class="pre">dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/dataset.html#load_data.dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.dataset.load_data.dataloader" title="Link to this definition"></a></dt>
+<dd><p>Load and process the dataset.</p>
+<p>This method unzips the provided zip file, extracts the dataset,
+and processes it to create training and validation data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FolderException</strong> – If the dataset folder structure is not as expected.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.dataset.load_data.show_distribution">
+<span class="sig-name descname"><span class="pre">show_distribution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/dataset.html#load_data.show_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.dataset.load_data.show_distribution" title="Link to this definition"></a></dt>
+<dd><p>Visualize the distribution of labels in the training and validation datasets.</p>
+<p>This method creates bar plots to show the distribution of labels in the training and validation datasets.
+It provides insights into the class distribution, which can be helpful for understanding dataset balance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.dataset.load_data.show_plot">
+<span class="sig-name descname"><span class="pre">show_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/dataset.html#load_data.show_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.dataset.load_data.show_plot" title="Link to this definition"></a></dt>
+<dd><p>Display a grid of sample images and their corresponding labels.</p>
+<p>This method shows a grid of sample images from the training data and their corresponding labels.
+It can be useful for visually inspecting a subset of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-alzheimer_classifier.metrics">
+<span id="alzheimer-classifier-metrics-module"></span><h2>alzheimer_classifier.metrics module<a class="headerlink" href="#module-alzheimer_classifier.metrics" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="alzheimer_classifier.metrics.model_performance">
+<span class="sig-prename descclassname"><span class="pre">alzheimer_classifier.metrics.</span></span><span class="sig-name descname"><span class="pre">model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/metrics.html#model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.metrics.model_performance" title="Link to this definition"></a></dt>
+<dd><p>Compute and display the performance metrics of a model on both training and testing datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to evaluate.</p></li>
+<li><p><strong>train_loader</strong> – DataLoader for the training dataset.</p></li>
+<li><p><strong>test_loader</strong> – DataLoader for the testing dataset.</p></li>
+<li><p><strong>device</strong> – The device (e.g., CPU or GPU) to use for evaluation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-alzheimer_classifier.model">
+<span id="alzheimer-classifier-model-module"></span><h2>alzheimer_classifier.model module<a class="headerlink" href="#module-alzheimer_classifier.model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">alzheimer_classifier.model.</span></span><span class="sig-name descname"><span class="pre">classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A neural network classifier composed of convolutional and fully connected layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_features</strong> (<em>int</em>) – The number of input features, default is None.</p></li>
+<li><p><strong>output_features</strong> (<em>int</em>) – The number of output features, default is None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.LEFT_CONV">
+<span class="sig-name descname"><span class="pre">LEFT_CONV</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.LEFT_CONV" title="Link to this definition"></a></dt>
+<dd><p>Left convolutional layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.MIDDLE_CONV">
+<span class="sig-name descname"><span class="pre">MIDDLE_CONV</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.MIDDLE_CONV" title="Link to this definition"></a></dt>
+<dd><p>Middle convolutional layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.RIGHT_CONV">
+<span class="sig-name descname"><span class="pre">RIGHT_CONV</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.RIGHT_CONV" title="Link to this definition"></a></dt>
+<dd><p>Right convolutional layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.FC_LAYER">
+<span class="sig-name descname"><span class="pre">FC_LAYER</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.FC_LAYER" title="Link to this definition"></a></dt>
+<dd><p>Fully connected layers before branching into left, middle, and right.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.LEFT_FC">
+<span class="sig-name descname"><span class="pre">LEFT_FC</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.LEFT_FC" title="Link to this definition"></a></dt>
+<dd><p>Left fully connected layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.MIDD_FC">
+<span class="sig-name descname"><span class="pre">MIDD_FC</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.MIDD_FC" title="Link to this definition"></a></dt>
+<dd><p>Middle fully connected layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.RIGHT_FC">
+<span class="sig-name descname"><span class="pre">RIGHT_FC</span></span><a class="headerlink" href="#alzheimer_classifier.model.classifier.RIGHT_FC" title="Link to this definition"></a></dt>
+<dd><p>Right fully connected layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Sequential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.forward" title="Link to this definition"></a></dt>
+<dd><p>Forward pass of the classifier neural network.</p>
+<p>This method defines the forward pass of the classifier neural network, which consists of the following steps:</p>
+<ol class="arabic simple">
+<li><p>Applying the LEFT_CONV, MIDDLE_CONV, and RIGHT_CONV convolutional layers to the input tensor x to extract features.</p></li>
+<li><p>Reshaping the output of each convolutional branch to have a 1D representation.</p></li>
+<li><p>Concatenating the flattened outputs of the three branches along dimension 1 to combine features.</p></li>
+<li><p>Applying the FC_LAYER, a fully connected layer, to the concatenated feature representation.</p></li>
+<li><p>Branching into LEFT_FC, MIDDLE_FC, and RIGHT_FC fully connected layers for different tasks.</p></li>
+<li><p>Returning the output of each branch.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – The input tensor to the network.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the outputs of the LEFT_FC, MIDDLE_FC, and RIGHT_FC branches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>LEFT_FC, MIDDLE_FC, and RIGHT_FC are typically used for different subtasks or classes.</p></li>
+<li><p>The concatenation allows the network to capture joint information from the three convolutional branches.</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.fully_connected_layer">
+<span class="sig-name descname"><span class="pre">fully_connected_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.fully_connected_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.fully_connected_layer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.left_conv_layer">
+<span class="sig-name descname"><span class="pre">left_conv_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.left_conv_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.left_conv_layer" title="Link to this definition"></a></dt>
+<dd><p>Defines a sequence of convolutional and pooling layers in PyTorch.</p>
+<p>This sequence consists of three convolutional layers, each followed by a ReLU activation function
+and a max-pooling layer with 2x2 kernel size and stride 2, effectively reducing spatial dimensions.
+The convolutional layers have varying numbers of input and output channels, kernel sizes, and padding.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>1st Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 3 (assumes RGB image)</p></li>
+<li><p>Output channels: 32</p></li>
+<li><p>Kernel size: 3x3</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>2nd Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 32</p></li>
+<li><p>Output channels: 16</p></li>
+<li><p>Kernel size: 3x3</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>3rd Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 16</p></li>
+<li><p>Output channels: 8</p></li>
+<li><p>Kernel size: 3x3</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.left_fc_layer">
+<span class="sig-name descname"><span class="pre">left_fc_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.left_fc_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.left_fc_layer" title="Link to this definition"></a></dt>
+<dd><p>Defines a sequence of fully connected layers in PyTorch.</p>
+<p>This sequence consists of four fully connected (linear) layers, each followed by a ReLU activation function
+and, in some cases, a dropout layer with a specified dropout probability. The fully connected layers have
+different numbers of input and output features.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>1st Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 256</p></li>
+<li><p>Output features: 128</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><dl class="simple">
+<dt>2nd Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 128</p></li>
+<li><p>Output features: 64</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><p>Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</p></li>
+<li><dl class="simple">
+<dt>3rd Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 64</p></li>
+<li><p>Output features: 16</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><p>Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</p></li>
+<li><dl class="simple">
+<dt>4th Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 16</p></li>
+<li><p>Output features: 4</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Softmax Activation Function: Used for multi-class classification</p></li>
+</ul>
+<p>Note: The final softmax layer is typically used for classification tasks to obtain class probabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.middle_conv_layer">
+<span class="sig-name descname"><span class="pre">middle_conv_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.middle_conv_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.middle_conv_layer" title="Link to this definition"></a></dt>
+<dd><p>Defines a sequence of convolutional and pooling layers in PyTorch.</p>
+<p>This sequence consists of three convolutional layers, each followed by a ReLU activation function
+and a max-pooling layer with 2x2 kernel size and stride 2, effectively reducing spatial dimensions.
+The convolutional layers have varying numbers of input and output channels, kernel sizes, and padding.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>1st Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 3 (assumes RGB image)</p></li>
+<li><p>Output channels: 32</p></li>
+<li><p>Kernel size: 4x4</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>2nd Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 32</p></li>
+<li><p>Output channels: 16</p></li>
+<li><p>Kernel size: 4x4</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>3rd Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 16</p></li>
+<li><p>Output channels: 8</p></li>
+<li><p>Kernel size: 4x4</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.middle_fc_layer">
+<span class="sig-name descname"><span class="pre">middle_fc_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.middle_fc_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.middle_fc_layer" title="Link to this definition"></a></dt>
+<dd><p>Defines a sequence of fully connected layers in PyTorch.</p>
+<p>This sequence consists of four fully connected (linear) layers, each followed by a ReLU activation function
+and, in some cases, a dropout layer with a specified dropout probability. The fully connected layers have
+different numbers of input and output features.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>1st Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 256</p></li>
+<li><p>Output features: 64</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><dl class="simple">
+<dt>2nd Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 64</p></li>
+<li><p>Output features: 32</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><p>Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</p></li>
+<li><dl class="simple">
+<dt>3rd Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 32</p></li>
+<li><p>Output features: 4</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Softmax Activation Function: Used for multi-class classification</p></li>
+</ul>
+<p>Note: The final softmax layer is typically used for classification tasks to obtain class probabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.model_details">
+<span class="sig-name descname"><span class="pre">model_details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.model_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.model_details" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.right_conv_layer">
+<span class="sig-name descname"><span class="pre">right_conv_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.right_conv_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.right_conv_layer" title="Link to this definition"></a></dt>
+<dd><p>Defines a sequence of convolutional and pooling layers in PyTorch.</p>
+<p>This sequence consists of three convolutional layers, each followed by a ReLU activation function
+and a max-pooling layer with 2x2 kernel size and stride 2, effectively reducing spatial dimensions.
+The convolutional layers have varying numbers of input and output channels, kernel sizes, and padding.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>1st Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 3 (assumes RGB image)</p></li>
+<li><p>Output channels: 32</p></li>
+<li><p>Kernel size: 5x5</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>2nd Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 32</p></li>
+<li><p>Output channels: 16</p></li>
+<li><p>Kernel size: 5x5</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>3rd Convolutional Layer:</dt><dd><ul>
+<li><p>Input channels: 16</p></li>
+<li><p>Output channels: 8</p></li>
+<li><p>Kernel size: 5x5</p></li>
+<li><p>Padding: 1</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.model.classifier.right_fc_layer">
+<span class="sig-name descname"><span class="pre">right_fc_layer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/model.html#classifier.right_fc_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.model.classifier.right_fc_layer" title="Link to this definition"></a></dt>
+<dd><p>Defines a sequence of fully connected layers in PyTorch.</p>
+<p>This sequence consists of four fully connected (linear) layers, each followed by a ReLU activation function
+and, in some cases, a dropout layer with a specified dropout probability. The fully connected layers have
+different numbers of input and output features.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>1st Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 256</p></li>
+<li><p>Output features: 32</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><dl class="simple">
+<dt>2nd Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 64</p></li>
+<li><p>Output features: 16</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ReLU Activation Function</p></li>
+<li><p>Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</p></li>
+<li><dl class="simple">
+<dt>3rd Fully Connected Layer:</dt><dd><ul>
+<li><p>Input features: 16</p></li>
+<li><p>Output features: 4</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Softmax Activation Function: Used for multi-class classification</p></li>
+</ul>
+<p>Note: The final softmax layer is typically used for classification tasks to obtain class probabilities.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-alzheimer_classifier.trainer">
+<span id="alzheimer-classifier-trainer-module"></span><h2>alzheimer_classifier.trainer module<a class="headerlink" href="#module-alzheimer_classifier.trainer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">alzheimer_classifier.trainer.</span></span><span class="sig-name descname"><span class="pre">Trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/trainer.html#Trainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for training multiple models with shared parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>classifier</strong> (<em>nn.Module</em><em>, </em><em>optional</em>) – The shared classifier model. Default is None.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model1_loss_function">
+<span class="sig-name descname"><span class="pre">model1_loss_function</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model1_loss_function" title="Link to this definition"></a></dt>
+<dd><p>Loss function for model 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model2_loss_function">
+<span class="sig-name descname"><span class="pre">model2_loss_function</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model2_loss_function" title="Link to this definition"></a></dt>
+<dd><p>Loss function for model 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model3_loss_function">
+<span class="sig-name descname"><span class="pre">model3_loss_function</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model3_loss_function" title="Link to this definition"></a></dt>
+<dd><p>Loss function for model 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model1_lr">
+<span class="sig-name descname"><span class="pre">model1_lr</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model1_lr" title="Link to this definition"></a></dt>
+<dd><p>Learning rate for model 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model2_lr">
+<span class="sig-name descname"><span class="pre">model2_lr</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model2_lr" title="Link to this definition"></a></dt>
+<dd><p>Learning rate for model 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model3_lr">
+<span class="sig-name descname"><span class="pre">model3_lr</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model3_lr" title="Link to this definition"></a></dt>
+<dd><p>Learning rate for model 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model1_optimizer">
+<span class="sig-name descname"><span class="pre">model1_optimizer</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model1_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Optimizer for model 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optim.Optimizer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model2_optimizer">
+<span class="sig-name descname"><span class="pre">model2_optimizer</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model2_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Optimizer for model 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optim.Optimizer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.model3_optimizer">
+<span class="sig-name descname"><span class="pre">model3_optimizer</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.model3_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Optimizer for model 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optim.Optimizer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.MODEL1_ACCURACY">
+<span class="sig-name descname"><span class="pre">MODEL1_ACCURACY</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.MODEL1_ACCURACY" title="Link to this definition"></a></dt>
+<dd><p>List to store accuracy values for model 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.MODEL2_ACCURACY">
+<span class="sig-name descname"><span class="pre">MODEL2_ACCURACY</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.MODEL2_ACCURACY" title="Link to this definition"></a></dt>
+<dd><p>List to store accuracy values for model 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.MODEL3_ACCURACY">
+<span class="sig-name descname"><span class="pre">MODEL3_ACCURACY</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.MODEL3_ACCURACY" title="Link to this definition"></a></dt>
+<dd><p>List to store accuracy values for model 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.MODEL1_TOTAL_LOSS">
+<span class="sig-name descname"><span class="pre">MODEL1_TOTAL_LOSS</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.MODEL1_TOTAL_LOSS" title="Link to this definition"></a></dt>
+<dd><p>List to store total loss values for model 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.MODEL2_TOTAL_LOSS">
+<span class="sig-name descname"><span class="pre">MODEL2_TOTAL_LOSS</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.MODEL2_TOTAL_LOSS" title="Link to this definition"></a></dt>
+<dd><p>List to store total loss values for model 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.MODEL3_TOTAL_LOSS">
+<span class="sig-name descname"><span class="pre">MODEL3_TOTAL_LOSS</span></span><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.MODEL3_TOTAL_LOSS" title="Link to this definition"></a></dt>
+<dd><p>List to store total loss values for model 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the <cite>classifier</cite> is not provided, an exception is raised with an error message.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.performance">
+<span class="sig-name descname"><span class="pre">performance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/trainer.html#Trainer.performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.performance" title="Link to this definition"></a></dt>
+<dd><p>Plot training and validation loss and accuracy for three different models.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="alzheimer_classifier.trainer.Trainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_loader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alzheimer_classifier/trainer.html#Trainer.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#alzheimer_classifier.trainer.Trainer.train" title="Link to this definition"></a></dt>
+<dd><p>Train multiple models and evaluate their performance over a specified number of epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TRAIN_LOADER</strong> – DataLoader for the training dataset.</p></li>
+<li><p><strong>TEST_LOADER</strong> – DataLoader for the testing dataset.</p></li>
+<li><p><strong>TOTAL_EPOCHS</strong> – Total number of epochs for training.</p></li>
+</ul>
+</dd>
+</dl>
+<p>This method iteratively trains and evaluates multiple models over a specified number of epochs.
+It stores and updates training and validation metrics in a history dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-alzheimer_classifier">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alzheimer_classifier" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AI Sajib.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

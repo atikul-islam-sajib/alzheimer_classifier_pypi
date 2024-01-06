@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>alzheimer_classifier.dataset &mdash; alzheimer 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            alzheimer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">alzheimer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">alzheimer_classifier.dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for alzheimer_classifier.dataset</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<div class="viewcode-block" id="EmptyListException">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.dataset.EmptyListException">[docs]</a>
+<span class="k">class</span> <span class="nc">EmptyListException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;A custom exception&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_data">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.dataset.load_data">[docs]</a>
+<span class="k">class</span> <span class="nc">load_data</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">extract_to</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initialize the load_data class.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                filename (str): The path to the zip file containing the dataset.</span>
+<span class="sd">                extract_to (str): The directory where the zip file will be extracted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>   <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extract_to</span> <span class="o">=</span> <span class="n">extract_to</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_train</span>    <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_train</span>    <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_val</span>      <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_val</span>      <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="load_data.dataloader">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.dataset.load_data.dataloader">[docs]</a>
+    <span class="k">def</span> <span class="nf">dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Load and process the dataset.</span>
+
+<span class="sd">            This method unzips the provided zip file, extracts the dataset,</span>
+<span class="sd">            and processes it to create training and validation data.</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                FolderException: If the dataset folder structure is not as expected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unzip_file</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">extract_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_to</span><span class="p">)</span>
+        <span class="n">TRAIN_DATA</span><span class="p">,</span> <span class="n">VAL_DATA</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_features</span><span class="p">(</span><span class="n">DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extract_to</span><span class="p">,</span> <span class="s1">&#39;alzheimer_dataset/dataset&#39;</span><span class="p">))</span>
+        
+        <span class="c1"># Randomly shuffle the data</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">TRAIN_DATA</span><span class="p">)</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">VAL_DATA</span><span class="p">)</span>
+        
+        <span class="c1"># Normalize the data (assuming you have a method for this)</span>
+        <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_independent_dependent</span><span class="p">(</span><span class="n">TRAIN_DATA</span> <span class="o">=</span> <span class="n">TRAIN_DATA</span><span class="p">,</span>
+                                                                           <span class="n">VAL_DATA</span>   <span class="o">=</span> <span class="n">VAL_DATA</span><span class="p">)</span>
+        <span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_normalization</span><span class="p">(</span><span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">,</span>
+                                                <span class="n">X_val</span>   <span class="o">=</span> <span class="n">X_val</span><span class="p">,</span>
+                                                <span class="n">y_train</span> <span class="o">=</span> <span class="n">y_train</span><span class="p">,</span>
+                                                <span class="n">y_val</span>   <span class="o">=</span> <span class="n">y_val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">y_train</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_val</span>   <span class="o">=</span> <span class="n">X_val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_val</span>   <span class="o">=</span> <span class="n">y_val</span>
+        
+        <span class="n">TRAIN_LOADER</span><span class="p">,</span> <span class="n">TEST_LOADER</span><span class="p">,</span> <span class="n">VAL_LOADER</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataloader</span><span class="p">(</span><span class="n">X</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_val</span> <span class="o">=</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">y_val</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">TRAIN_LOADER</span><span class="p">,</span> <span class="n">TEST_LOADER</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_extract_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DIRECTORY</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Extract features from the dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                DIRECTORY (str): The path to the directory containing the dataset.</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                FolderException: If the dataset folder structure is not as expected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">class</span> <span class="nc">FolderException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;A custom exception&quot;</span><span class="p">):</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="n">DIRECTORY</span>  <span class="o">=</span> <span class="n">DIRECTORY</span>
+        <span class="n">CATEGORIES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mild&#39;</span><span class="p">,</span> <span class="s1">&#39;moderate&#39;</span><span class="p">,</span> <span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="s1">&#39;very_mild&#39;</span><span class="p">]</span>
+        <span class="n">CONFIRM</span>    <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">VAL_DATA</span>   <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">TRAIN_DATA</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DIRECTORY</span><span class="p">):</span>
+            <span class="n">FOLDER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DIRECTORY</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">FOLDER</span><span class="p">):</span>
+                <span class="n">CONFIRM</span> <span class="o">=</span> <span class="n">CONFIRM</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">CONFIRM</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sub_folder</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DIRECTORY</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">sub_folder</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> folder is accessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_folder</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">FULL_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DIRECTORY</span><span class="p">,</span> <span class="n">sub_folder</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">CATEGORIES</span><span class="p">:</span>
+                        <span class="n">IMAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FULL_PATH</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">image_filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">IMAGE_PATH</span><span class="p">):</span>
+                            <span class="n">IMAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FULL_PATH</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">IMAGE_PATH</span><span class="p">):</span>
+                                <span class="n">image_array</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">IMAGE_PATH</span><span class="p">),</span>
+                                                        <span class="n">dsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">120</span><span class="p">))</span>
+                                <span class="n">image_label</span> <span class="o">=</span> <span class="n">CATEGORIES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+                                <span class="n">VAL_DATA</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">image_array</span><span class="p">,</span>
+                                                <span class="n">image_label</span><span class="p">])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Image file not found at path </span><span class="si">{</span><span class="n">IMAGE_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> folder is completed.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">category</span><span class="p">))</span>
+                    
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">sub_folder</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> folder is accessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_folder</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">FULL_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DIRECTORY</span><span class="p">,</span> <span class="n">sub_folder</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">CATEGORIES</span><span class="p">:</span>
+                        <span class="n">IMAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FULL_PATH</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">image_filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">IMAGE_PATH</span><span class="p">):</span>
+                            <span class="n">IMAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FULL_PATH</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">IMAGE_PATH</span><span class="p">):</span>
+                                <span class="n">image_array</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">IMAGE_PATH</span><span class="p">),</span>
+                                                        <span class="n">dsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">120</span><span class="p">))</span>
+                                <span class="n">image_label</span> <span class="o">=</span> <span class="n">CATEGORIES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+                                <span class="n">TRAIN_DATA</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">image_array</span><span class="p">,</span>
+                                                    <span class="n">image_label</span><span class="p">])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Image file not found at path </span><span class="si">{</span><span class="n">IMAGE_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> folder is completed.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">category</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FolderException</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;Folder Format like</span><span class="se">\n</span><span class="s1">:</span>
+<span class="s1">                                xyz.zip</span>
+<span class="s1">                                    |</span>
+<span class="s1">                                dataset(This folder name should be kept)</span>
+<span class="s1">                                    |__train</span>
+<span class="s1">                                    |   |__very_mild(here all the images would be kept)</span>
+<span class="s1">                                    |   |__no(here all the images would be kept)</span>
+<span class="s1">                                    |   |__mild(here all the images would be kept)</span>
+<span class="s1">                                    |   |__moderate(here all the images would be kept)</span>
+<span class="s1">                                    |__test</span>
+<span class="s1">                                        |__very_mild(here all the images would be kept)</span>
+<span class="s1">                                        |__no(here all the images would be kept)</span>
+<span class="s1">                                        |__mild(here all the images would be kept)</span>
+<span class="s1">                                        |__moderate(here all the images would be kept)</span>
+<span class="s1">                                &#39;&#39;&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;Details of dataset&quot;</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;Length of train data # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">TRAIN_DATA</span><span class="p">)),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;Length of validation data # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">VAL_DATA</span><span class="p">)),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">TRAIN_DATA</span><span class="p">,</span> <span class="n">VAL_DATA</span>
+                
+    <span class="k">def</span> <span class="nf">_unzip_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">extract_to</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Extracts the zip file to the specified directory.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                filename (str): The path to the zip file.</span>
+<span class="sd">                extract_to (str): The directory where the zip file will be extracted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">link_folder</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">if</span> <span class="n">link_folder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;zip&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unzipping is in progress. It will take some time, so please be patient.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">link_folder</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+                <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">extract_to</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;File should be in zip format&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_split_independent_dependent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TRAIN_DATA</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">VAL_DATA</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Split the dataset into independent (features) and dependent (labels) sets.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                TRAIN_DATA (list): A list of training data samples, where each element is a tuple of</span>
+<span class="sd">                    an independent feature and its corresponding dependent label.</span>
+<span class="sd">                VAL_DATA (list): A list of validation data samples, where each element is a tuple of</span>
+<span class="sd">                    an independent feature and its corresponding dependent label.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                tuple: A tuple containing the following elements:</span>
+<span class="sd">                    - X_train (list): A list of independent features for training.</span>
+<span class="sd">                    - y_train (list): A list of dependent labels for training.</span>
+<span class="sd">                    - X_val (list): A list of independent features for validation.</span>
+<span class="sd">                    - y_val (list): A list of dependent labels for validation.</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                EmptyListException: If either TRAIN_DATA or VAL_DATA is empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X_train</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y_train</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">X_val</span>   <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y_val</span>   <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">if</span> <span class="n">TRAIN_DATA</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">independent</span><span class="p">,</span> <span class="n">dependent</span><span class="p">)</span> <span class="ow">in</span> <span class="n">TRAIN_DATA</span><span class="p">:</span>
+                <span class="n">X_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">independent</span><span class="p">)</span>
+                <span class="n">y_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dependent</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EmptyListException</span><span class="p">(</span><span class="s2">&quot;Empty list&quot;</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+        
+        <span class="k">if</span> <span class="n">VAL_DATA</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">independent</span><span class="p">,</span> <span class="n">dependent</span><span class="p">)</span> <span class="ow">in</span> <span class="n">VAL_DATA</span><span class="p">:</span>
+                <span class="n">X_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">independent</span><span class="p">)</span>
+                <span class="n">y_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dependent</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EmptyListException</span><span class="p">(</span><span class="s2">&quot;Empty list&quot;</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+        
+        <span class="n">train</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_train</span><span class="p">)))</span>
+        <span class="n">test</span>  <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_val</span><span class="p">)))</span>
+
+        <span class="k">assert</span> <span class="n">train</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">test</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;Total number of target class # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span>
+        
+    <span class="k">def</span> <span class="nf">_do_normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">X_val</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Normalize the pixel values of the dataset.</span>
+
+<span class="sd">            This method scales the pixel values of the independent features in the dataset to the</span>
+<span class="sd">            range [0, 1] by dividing them by 255.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                X_train (list or np.ndarray): A list or numpy array of independent features for training.</span>
+<span class="sd">                y_train: Unused in this method.</span>
+<span class="sd">                X_val (list or np.ndarray): A list or numpy array of independent features for validation.</span>
+<span class="sd">                y_val: Unused in this method.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+
+<span class="sd">            Notes:</span>
+<span class="sd">                - y_train and y_val are not used in this method, and the normalization is applied only</span>
+<span class="sd">                to X_train and X_val.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="n">X_val</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
+        
+        <span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+        <span class="n">y_val</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_val</span><span class="p">)</span>
+
+        <span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">/</span><span class="mi">255</span>
+        <span class="n">X_val</span>   <span class="o">=</span> <span class="n">X_val</span><span class="o">/</span><span class="mi">255</span>
+        
+        <span class="k">return</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span>
+    
+<div class="viewcode-block" id="load_data.show_plot">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.dataset.load_data.show_plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Display a grid of sample images and their corresponding labels.</span>
+
+<span class="sd">            This method shows a grid of sample images from the training data and their corresponding labels.</span>
+<span class="sd">            It can be useful for visually inspecting a subset of the dataset.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sample_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_train</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
+        <span class="n">sample_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_train</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sample_data</span><span class="p">):</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Mild&#39;</span> <span class="k">if</span> <span class="n">sample_label</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>\
+                        <span class="k">else</span> <span class="s1">&#39;Moderate&#39;</span> <span class="k">if</span> <span class="n">sample_label</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>\
+                        <span class="k">else</span> <span class="s1">&#39;No&#39;</span> <span class="k">if</span> <span class="n">sample_label</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>\
+                        <span class="k">else</span> <span class="s1">&#39;Very Mild&#39;</span>
+                        <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="load_data.show_distribution">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.dataset.load_data.show_distribution">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Visualize the distribution of labels in the training and validation datasets.</span>
+
+<span class="sd">            This method creates bar plots to show the distribution of labels in the training and validation datasets.</span>
+<span class="sd">            It provides insights into the class distribution, which can be helpful for understanding dataset balance.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_train</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;train_target&#39;</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of Train dataset.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+            
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;train_target&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Mild&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Moderate&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;No&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;Very Mild&#39;</span><span class="p">})</span><span class="o">.</span>\
+                                            <span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;barh&#39;</span><span class="p">)</span>
+                                            
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distribution of train label&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">try</span><span class="p">:</span>    
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_val</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;val_target&#39;</span><span class="p">])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of validation dataset.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+                
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;val_target&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Mild&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Moderate&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;No&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;Very Mild&#39;</span><span class="p">})</span><span class="o">.</span>\
+                                            <span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;barh&#39;</span><span class="p">)</span>
+                                            
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distribution of validation label&quot;</span><span class="p">)</span>   
+                <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">EmptyListException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A custom exception # </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>  
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">except</span> <span class="n">EmptyListException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A custom exception # </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>   
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_create_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">X_val</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Data Preprocessing and Preparation for Deep Learning Model</span>
+
+<span class="sd">            This code performs the following tasks:</span>
+
+<span class="sd">            1. Data Preprocessing:</span>
+<span class="sd">            - Reshapes and converts the training and validation data into PyTorch tensors.</span>
+
+<span class="sd">            2. Data Splitting:</span>
+<span class="sd">            - Splits the data into training and testing sets using train_test_split.</span>
+
+<span class="sd">            3. Data Loading:</span>
+<span class="sd">            - Creates data loaders for training, testing, and validation datasets using DataLoader.</span>
+
+<span class="sd">            4. Information Display:</span>
+<span class="sd">            - Displays dataset shapes and data loader batch sizes.</span>
+
+<span class="sd">            5. Data Extraction:</span>
+<span class="sd">            - Extracts data and labels from the data loaders.</span>
+
+<span class="sd">            6. Returns:</span>
+<span class="sd">            - Returns the created data loaders for further model training and evaluation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">CHANNEL</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">HEIGHT</span>  <span class="o">=</span> <span class="mi">120</span>
+        <span class="n">WIDTH</span>   <span class="o">=</span> <span class="mi">120</span>
+        <span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">128</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CHANNEL</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">X</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        
+        <span class="n">X_val</span>   <span class="o">=</span> <span class="n">X_val</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CHANNEL</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">)</span>
+        <span class="n">X_val</span>   <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">X_train_data</span><span class="p">,</span> <span class="n">X_test_data</span><span class="p">,</span> <span class="n">y_train_data</span><span class="p">,</span> <span class="n">y_test_data</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+                                                                                <span class="n">y</span><span class="p">,</span>
+                                                                                <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.30</span><span class="p">,</span>
+                                                                                <span class="n">random_state</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;X_train (TRAIN DATASET) shape  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">X_train_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;y_train (TRAIN DATASET) shape  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y_train_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;X_test  (TRAIN DATASET) shape  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">X_test_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;y_test  (TRAIN DATASET) shape  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y_test_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">TRAIN_LOADER</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X_train_data</span><span class="p">,</span> <span class="n">y_train_data</span><span class="p">)),</span>\
+                                  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">BATCH_SIZE</span><span class="p">,</span>\
+                                  <span class="n">shuffle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">TEST_LOADER</span>  <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X_test_data</span><span class="p">,</span> <span class="n">y_test_data</span><span class="p">)),</span>\
+                                  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">BATCH_SIZE</span><span class="p">,</span>\
+                                  <span class="n">shuffle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        
+        <span class="n">VAL_LOADER</span>   <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">)),</span>
+                                  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">BATCH_SIZE</span><span class="p">,</span>
+                                  <span class="n">shuffle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Batch size of Train # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TRAIN_LOADER</span><span class="o">.</span><span class="n">batch_size</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Batch size of Test  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TEST_LOADER</span><span class="o">.</span><span class="n">batch_size</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Extract the data and label</span>
+        <span class="n">train_data</span><span class="p">,</span> <span class="n">train_label</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">TRAIN_LOADER</span><span class="p">))</span>
+        <span class="n">test_data</span><span class="p">,</span> <span class="n">test_label</span>   <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">TEST_LOADER</span><span class="p">))</span>
+        <span class="n">val_data</span><span class="p">,</span> <span class="n">val_label</span>     <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">VAL_LOADER</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Train data  (TRAIN DATASET) with single batch_size  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Train label (TRAIN DATASET) with single batch_size  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_label</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Test data   (TRAIN DATASET) with single batch_size  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Test label  (TRAIN DATASET) with single batch_size  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_label</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Val data  (VALIDATION DATASET) with single batch_size  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;VAL label (VALIDATION DATASET) with single batch_size  # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val_label</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">TRAIN_LOADER</span><span class="p">,</span> <span class="n">TEST_LOADER</span><span class="p">,</span> <span class="n">VAL_LOADER</span></div>
+
+        
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">filename</span>   <span class="o">=</span> <span class="s1">&#39;C:/Users/atiku/Downloads/alzheimer_dataset.zip&#39;</span><span class="p">,</span>
+                       <span class="n">extract_to</span> <span class="o">=</span> <span class="s1">&#39;C:/Users/atiku/Downloads/&#39;</span><span class="p">)</span>
+    <span class="n">train_loader</span><span class="p">,</span> <span class="n">test_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">dataloader</span><span class="p">()</span>
+    
+    <span class="n">loader</span><span class="o">.</span><span class="n">show_plot</span><span class="p">()</span>
+    <span class="n">loader</span><span class="o">.</span><span class="n">show_distribution</span><span class="p">()</span>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AI Sajib.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

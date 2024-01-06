@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>alzheimer_classifier.model &mdash; alzheimer 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            alzheimer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">alzheimer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">alzheimer_classifier.model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for alzheimer_classifier.model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<div class="viewcode-block" id="classifier">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier">[docs]</a>
+<span class="k">class</span> <span class="nc">classifier</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A neural network classifier composed of convolutional and fully connected layers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_features (int): The number of input features, default is None.</span>
+<span class="sd">        output_features (int): The number of output features, default is None.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        LEFT_CONV (nn.Sequential): Left convolutional layers.</span>
+<span class="sd">        MIDDLE_CONV (nn.Sequential): Middle convolutional layers.</span>
+<span class="sd">        RIGHT_CONV (nn.Sequential): Right convolutional layers.</span>
+<span class="sd">        FC_LAYER (nn.Sequential): Fully connected layers before branching into left, middle, and right.</span>
+<span class="sd">        LEFT_FC (nn.Sequential): Left fully connected layers.</span>
+<span class="sd">        MIDD_FC (nn.Sequential): Middle fully connected layers.</span>
+<span class="sd">        RIGHT_FC (nn.Sequential): Right fully connected layers.</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_features</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output_features</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">LEFT_CONV</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_conv_layer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">MIDDLE_CONV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">middle_conv_layer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">RIGHT_CONV</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_conv_layer</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">FC_LAYER</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fully_connected_layer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">LEFT_FC</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_fc_layer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">MIDD_FC</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">middle_fc_layer</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">RIGHT_FC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_fc_layer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="classifier.left_conv_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.left_conv_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">left_conv_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a sequence of convolutional and pooling layers in PyTorch.</span>
+
+<span class="sd">    This sequence consists of three convolutional layers, each followed by a ReLU activation function</span>
+<span class="sd">    and a max-pooling layer with 2x2 kernel size and stride 2, effectively reducing spatial dimensions.</span>
+<span class="sd">    The convolutional layers have varying numbers of input and output channels, kernel sizes, and padding.</span>
+
+<span class="sd">    - 1st Convolutional Layer:</span>
+<span class="sd">        - Input channels: 3 (assumes RGB image)</span>
+<span class="sd">        - Output channels: 32</span>
+<span class="sd">        - Kernel size: 3x3</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    - 2nd Convolutional Layer:</span>
+<span class="sd">        - Input channels: 32</span>
+<span class="sd">        - Output channels: 16</span>
+<span class="sd">        - Kernel size: 3x3</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    - 3rd Convolutional Layer:</span>
+<span class="sd">        - Input channels: 16</span>
+<span class="sd">        - Output channels: 8</span>
+<span class="sd">        - Kernel size: 3x3</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.middle_conv_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.middle_conv_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">middle_conv_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a sequence of convolutional and pooling layers in PyTorch.</span>
+
+<span class="sd">    This sequence consists of three convolutional layers, each followed by a ReLU activation function</span>
+<span class="sd">    and a max-pooling layer with 2x2 kernel size and stride 2, effectively reducing spatial dimensions.</span>
+<span class="sd">    The convolutional layers have varying numbers of input and output channels, kernel sizes, and padding.</span>
+
+<span class="sd">    - 1st Convolutional Layer:</span>
+<span class="sd">        - Input channels: 3 (assumes RGB image)</span>
+<span class="sd">        - Output channels: 32</span>
+<span class="sd">        - Kernel size: 4x4</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    - 2nd Convolutional Layer:</span>
+<span class="sd">        - Input channels: 32</span>
+<span class="sd">        - Output channels: 16</span>
+<span class="sd">        - Kernel size: 4x4</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    - 3rd Convolutional Layer:</span>
+<span class="sd">        - Input channels: 16</span>
+<span class="sd">        - Output channels: 8</span>
+<span class="sd">        - Kernel size: 4x4</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.right_conv_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.right_conv_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">right_conv_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a sequence of convolutional and pooling layers in PyTorch.</span>
+
+<span class="sd">    This sequence consists of three convolutional layers, each followed by a ReLU activation function</span>
+<span class="sd">    and a max-pooling layer with 2x2 kernel size and stride 2, effectively reducing spatial dimensions.</span>
+<span class="sd">    The convolutional layers have varying numbers of input and output channels, kernel sizes, and padding.</span>
+
+<span class="sd">    - 1st Convolutional Layer:</span>
+<span class="sd">        - Input channels: 3 (assumes RGB image)</span>
+<span class="sd">        - Output channels: 32</span>
+<span class="sd">        - Kernel size: 5x5</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    - 2nd Convolutional Layer:</span>
+<span class="sd">        - Input channels: 32</span>
+<span class="sd">        - Output channels: 16</span>
+<span class="sd">        - Kernel size: 5x5</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    - 3rd Convolutional Layer:</span>
+<span class="sd">        - Input channels: 16</span>
+<span class="sd">        - Output channels: 8</span>
+<span class="sd">        - Kernel size: 5x5</span>
+<span class="sd">        - Padding: 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span>  <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+                  <span class="n">kernel_size</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                  <span class="n">stride</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">padding</span> <span class="o">=</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                     <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.fully_connected_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.fully_connected_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">fully_connected_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">15</span> <span class="o">*</span> <span class="mi">15</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">14</span> <span class="o">*</span> <span class="mi">14</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">13</span> <span class="o">*</span> <span class="mi">13</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">256</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.left_fc_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.left_fc_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">left_fc_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a sequence of fully connected layers in PyTorch.</span>
+
+<span class="sd">    This sequence consists of four fully connected (linear) layers, each followed by a ReLU activation function</span>
+<span class="sd">    and, in some cases, a dropout layer with a specified dropout probability. The fully connected layers have</span>
+<span class="sd">    different numbers of input and output features.</span>
+
+<span class="sd">    - 1st Fully Connected Layer:</span>
+<span class="sd">        - Input features: 256</span>
+<span class="sd">        - Output features: 128</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - 2nd Fully Connected Layer:</span>
+<span class="sd">        - Input features: 128</span>
+<span class="sd">        - Output features: 64</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</span>
+<span class="sd">    - 3rd Fully Connected Layer:</span>
+<span class="sd">        - Input features: 64</span>
+<span class="sd">        - Output features: 16</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</span>
+<span class="sd">    - 4th Fully Connected Layer:</span>
+<span class="sd">        - Input features: 16</span>
+<span class="sd">        - Output features: 4</span>
+<span class="sd">    - Softmax Activation Function: Used for multi-class classification</span>
+
+<span class="sd">    Note: The final softmax layer is typically used for classification tasks to obtain class probabilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">128</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">64</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">16</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.middle_fc_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.middle_fc_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">middle_fc_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a sequence of fully connected layers in PyTorch.</span>
+
+<span class="sd">    This sequence consists of four fully connected (linear) layers, each followed by a ReLU activation function</span>
+<span class="sd">    and, in some cases, a dropout layer with a specified dropout probability. The fully connected layers have</span>
+<span class="sd">    different numbers of input and output features.</span>
+
+<span class="sd">    - 1st Fully Connected Layer:</span>
+<span class="sd">        - Input features: 256</span>
+<span class="sd">        - Output features: 64</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - 2nd Fully Connected Layer:</span>
+<span class="sd">        - Input features: 64</span>
+<span class="sd">        - Output features: 32</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</span>
+<span class="sd">    - 3rd Fully Connected Layer:</span>
+<span class="sd">        - Input features: 32</span>
+<span class="sd">        - Output features: 4</span>
+<span class="sd">    - Softmax Activation Function: Used for multi-class classification</span>
+
+<span class="sd">    Note: The final softmax layer is typically used for classification tasks to obtain class probabilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">64</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">32</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.right_fc_layer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.right_fc_layer">[docs]</a>
+  <span class="k">def</span> <span class="nf">right_fc_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a sequence of fully connected layers in PyTorch.</span>
+
+<span class="sd">    This sequence consists of four fully connected (linear) layers, each followed by a ReLU activation function</span>
+<span class="sd">    and, in some cases, a dropout layer with a specified dropout probability. The fully connected layers have</span>
+<span class="sd">    different numbers of input and output features.</span>
+
+<span class="sd">    - 1st Fully Connected Layer:</span>
+<span class="sd">        - Input features: 256</span>
+<span class="sd">        - Output features: 32</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - 2nd Fully Connected Layer:</span>
+<span class="sd">        - Input features: 64</span>
+<span class="sd">        - Output features: 16</span>
+<span class="sd">    - ReLU Activation Function</span>
+<span class="sd">    - Dropout Layer (p=0.5): Applies dropout with a probability of 0.5</span>
+<span class="sd">    - 3rd Fully Connected Layer:</span>
+<span class="sd">        - Input features: 16</span>
+<span class="sd">        - Output features: 4</span>
+<span class="sd">    - Softmax Activation Function: Used for multi-class classification</span>
+
+<span class="sd">    Note: The final softmax layer is typically used for classification tasks to obtain class probabilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">32</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">16</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">),</span>
+
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span>  <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+                  <span class="n">out_features</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="classifier.forward">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.forward">[docs]</a>
+  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Forward pass of the classifier neural network.</span>
+
+<span class="sd">    This method defines the forward pass of the classifier neural network, which consists of the following steps:</span>
+
+<span class="sd">    1. Applying the LEFT_CONV, MIDDLE_CONV, and RIGHT_CONV convolutional layers to the input tensor x to extract features.</span>
+<span class="sd">    2. Reshaping the output of each convolutional branch to have a 1D representation.</span>
+<span class="sd">    3. Concatenating the flattened outputs of the three branches along dimension 1 to combine features.</span>
+<span class="sd">    4. Applying the FC_LAYER, a fully connected layer, to the concatenated feature representation.</span>
+<span class="sd">    5. Branching into LEFT_FC, MIDDLE_FC, and RIGHT_FC fully connected layers for different tasks.</span>
+<span class="sd">    6. Returning the output of each branch.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (torch.Tensor): The input tensor to the network.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the outputs of the LEFT_FC, MIDDLE_FC, and RIGHT_FC branches.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        - LEFT_FC, MIDDLE_FC, and RIGHT_FC are typically used for different subtasks or classes.</span>
+<span class="sd">        - The concatenation allows the network to capture joint information from the three convolutional branches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LEFT</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LEFT_CONV</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">MIDDLE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIDDLE_CONV</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">RIGHT</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RIGHT_CONV</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">LEFT</span>   <span class="o">=</span> <span class="n">LEFT</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">LEFT</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">MIDDLE</span> <span class="o">=</span> <span class="n">MIDDLE</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">MIDDLE</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">RIGHT</span>  <span class="o">=</span> <span class="n">RIGHT</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">LEFT</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">CONCAT</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">MIDDLE</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">),</span> <span class="n">dim</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">FC_LAYER</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FC_LAYER</span><span class="p">(</span><span class="n">CONCAT</span><span class="p">)</span>
+
+    <span class="n">LEFT_FC</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LEFT_FC</span><span class="p">(</span><span class="n">FC_LAYER</span><span class="p">)</span>
+    <span class="n">MIDDLE_FC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIDD_FC</span><span class="p">(</span><span class="n">FC_LAYER</span><span class="p">)</span>
+    <span class="n">RIGHT_FC</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RIGHT_FC</span><span class="p">(</span><span class="n">FC_LAYER</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">LEFT_FC</span><span class="p">,</span> <span class="n">MIDDLE_FC</span><span class="p">,</span> <span class="n">RIGHT_FC</span></div>
+
+
+<div class="viewcode-block" id="classifier.model_details">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.model.classifier.model_details">[docs]</a>
+  <span class="k">def</span> <span class="nf">model_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="c1"># Create a classifier model with specified input and output features</span>
+      <span class="n">model</span> <span class="o">=</span> <span class="n">classifier</span><span class="p">(</span><span class="n">input_features</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">output_features</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+      
+      <span class="c1"># Print model details header</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot; Model Details &quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+      
+      <span class="c1"># Print model parameters</span>
+      <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span><span class="s2">&quot;Model Total Trainable Parameters &quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span><span class="s2">&quot;_&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+      
+      <span class="c1"># Call the _trainable_parameters method to count and print trainable parameters</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_trainable_parameters</span><span class="p">(</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">)</span></div>
+
+      
+  <span class="k">def</span> <span class="nf">_trainable_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">      </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Count and print the trainable parameters in a PyTorch model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (nn.Module): The PyTorch model to count parameters for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The total number of trainable parameters.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="n">TOTAL_PARAMS</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">for</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Layer # </span><span class="si">{}</span><span class="s2"> &amp; Trainable Parameters # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">numel</span><span class="p">()),</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">TOTAL_PARAMS</span><span class="o">+=</span><span class="n">params</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s2">&quot;Model Not Found&quot;</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+      
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="o">*</span><span class="mi">80</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Total Trainable Parameters # </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TOTAL_PARAMS</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="o">*</span><span class="mi">80</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+      
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">classifier</span><span class="p">(</span><span class="n">input_features</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">output_features</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">model_details</span><span class="p">()</span>
+    
+    
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AI Sajib.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

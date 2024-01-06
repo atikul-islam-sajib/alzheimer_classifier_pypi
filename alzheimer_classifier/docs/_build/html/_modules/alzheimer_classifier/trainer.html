@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>alzheimer_classifier.trainer &mdash; alzheimer 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            alzheimer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">alzheimer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">alzheimer_classifier.trainer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for alzheimer_classifier.trainer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+
+
+<div class="viewcode-block" id="Trainer">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.trainer.Trainer">[docs]</a>
+<span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">      A class for training multiple models with shared parameters.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">          classifier (nn.Module, optional): The shared classifier model. Default is None.</span>
+
+<span class="sd">      Attributes:</span>
+<span class="sd">          model1_loss_function (nn.Module): Loss function for model 1.</span>
+<span class="sd">          model2_loss_function (nn.Module): Loss function for model 2.</span>
+<span class="sd">          model3_loss_function (nn.Module): Loss function for model 3.</span>
+<span class="sd">          model1_lr (float): Learning rate for model 1.</span>
+<span class="sd">          model2_lr (float): Learning rate for model 2.</span>
+<span class="sd">          model3_lr (float): Learning rate for model 3.</span>
+<span class="sd">          model1_optimizer (optim.Optimizer): Optimizer for model 1.</span>
+<span class="sd">          model2_optimizer (optim.Optimizer): Optimizer for model 2.</span>
+<span class="sd">          model3_optimizer (optim.Optimizer): Optimizer for model 3.</span>
+<span class="sd">          MODEL1_ACCURACY (list): List to store accuracy values for model 1.</span>
+<span class="sd">          MODEL2_ACCURACY (list): List to store accuracy values for model 2.</span>
+<span class="sd">          MODEL3_ACCURACY (list): List to store accuracy values for model 3.</span>
+<span class="sd">          MODEL1_TOTAL_LOSS (list): List to store total loss values for model 1.</span>
+<span class="sd">          MODEL2_TOTAL_LOSS (list): List to store total loss values for model 2.</span>
+<span class="sd">          MODEL3_TOTAL_LOSS (list): List to store total loss values for model 3.</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">          ValueError: If the `classifier` is not provided, an exception is raised with an error message.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model1_loss_function</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model2_loss_function</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model3_loss_function</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">classifier</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model1_lr</span> <span class="o">=</span> <span class="mf">0.001</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model2_lr</span> <span class="o">=</span> <span class="mf">0.001</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model3_lr</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">model1_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+                <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model1_lr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model2_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+                <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model2_lr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model3_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+                <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model3_lr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s2">&quot;model is not defined&quot;</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;m1_train_loss&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m2_train_loss&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m3_train_loss&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m1_train_acc&#39;</span> <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m2_train_acc&#39;</span> <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m3_train_acc&#39;</span> <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m1_val_loss&#39;</span>  <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m2_val_loss&#39;</span>  <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m3_val_loss&#39;</span>  <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m1_val_acc&#39;</span>   <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m2_val_acc&#39;</span>   <span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;m3_val_acc&#39;</span>   <span class="p">:</span> <span class="p">[]</span>
+                        <span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_models</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_connect_GPU</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">independent_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dependent_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connects the provided classifier and data to a GPU device, and ensures dependent_data is of &#39;long&#39; type.</span>
+
+<span class="sd">        :param classifier: The classifier to be moved to the GPU device.</span>
+<span class="sd">        :param independent_data: The independent data to be moved to the GPU device.</span>
+<span class="sd">        :param dependent_data: The dependent data to be converted to &#39;long&#39; type and moved to the GPU device.</span>
+
+<span class="sd">        :return: A tuple containing the independent data and dependent data, both residing on the GPU device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">independent_data</span> <span class="o">=</span> <span class="n">independent_data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">dependent_data</span> <span class="o">=</span> <span class="n">dependent_data</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+        <span class="n">dependent_data</span> <span class="o">=</span> <span class="n">dependent_data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">independent_data</span><span class="p">,</span> <span class="n">dependent_data</span>
+
+    <span class="k">def</span> <span class="nf">_l1_regularization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lambda_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute L1 regularization for the model&#39;s parameters.</span>
+
+<span class="sd">        :param model: The model for which L1 regularization is computed.</span>
+<span class="sd">        :param lambda_value: The regularization strength (lambda value).</span>
+
+<span class="sd">        :return: The L1 regularization term as a scalar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_l2_regularization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lambda_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute L2 regularization for the model&#39;s parameters.</span>
+
+<span class="sd">        :param model: The model for which L1 regularization is computed.</span>
+<span class="sd">        :param lambda_value: The regularization strength (lambda value).</span>
+
+<span class="sd">        :return: The L2 regularization term as a scalar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_do_back_propagation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_loss</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform backpropagation to update model parameters.</span>
+
+<span class="sd">        :param optimizer: The optimizer used for updating model parameters.</span>
+<span class="sd">        :param model_loss: The loss computed for the model.</span>
+
+<span class="sd">        This function performs the following steps:</span>
+<span class="sd">        1. Zeroes out the gradients in the optimizer.</span>
+<span class="sd">        2. Backpropagates the model_loss to compute gradients.</span>
+<span class="sd">        3. Updates the model parameters using the optimizer.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">model_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_compute_predicted_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_prediction</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute predicted labels from the model&#39;s predictions.</span>
+
+<span class="sd">        :param model_prediction: The model&#39;s output predictions.</span>
+
+<span class="sd">        :return: The computed predicted labels as a NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">model_prediction</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">model_predicted</span> <span class="o">=</span> <span class="n">model_predicted</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">model_predicted</span>
+
+    <span class="k">def</span> <span class="nf">_compute_actual_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract the actual labels from a tensor and convert them to a NumPy array.</span>
+
+<span class="sd">        :param actual_label: The tensor containing the actual labels.</span>
+
+<span class="sd">        :return: The actual labels as a NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">actual_label</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_compute_model_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the loss of a model given the actual labels using a specified loss function.</span>
+
+<span class="sd">        :param model: The model for which the loss is to be computed.</span>
+<span class="sd">        :param loss_function: The loss function used to compute the loss.</span>
+<span class="sd">        :param actual_label: The actual labels for comparison.</span>
+
+<span class="sd">        :return: The computed loss value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">loss_function</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">actual_label</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_model_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the accuracy of a model&#39;s predictions by comparing them to the actual labels.</span>
+
+<span class="sd">        :param actual_label: The actual labels.</span>
+<span class="sd">        :param predicted_label: The predicted labels.</span>
+
+<span class="sd">        :return: The accuracy score as a float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model1_train_loss</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model2_train_loss</span>       <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model3_train_loss</span>       <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model1_train_acc</span>        <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model2_train_acc</span>        <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model3_train_acc</span>        <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model1_val_loss</span>         <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model2_val_loss</span>         <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model3_val_loss</span>         <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model1_val_acc</span>          <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model2_val_acc</span>          <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model3_val_acc</span>          <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">running_epochs</span>          <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">total_epochs</span>            <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display training and validation metrics for multiple models during the training process.</span>
+
+<span class="sd">        :param model1_train_loss: Training loss for model 1.</span>
+<span class="sd">        :param model2_train_loss: Training loss for model 2.</span>
+<span class="sd">        :param model3_train_loss: Training loss for model 3.</span>
+<span class="sd">        :param model1_train_acc: Training accuracy for model 1.</span>
+<span class="sd">        :param model2_train_acc: Training accuracy for model 2.</span>
+<span class="sd">        :param model3_train_acc: Training accuracy for model 3.</span>
+<span class="sd">        :param model1_val_loss: Validation loss for model 1.</span>
+<span class="sd">        :param model2_val_loss: Validation loss for model 2.</span>
+<span class="sd">        :param model3_val_loss: Validation loss for model 3.</span>
+<span class="sd">        :param model1_val_acc: Validation accuracy for model 1.</span>
+<span class="sd">        :param model2_val_acc: Validation accuracy for model 2.</span>
+<span class="sd">        :param model3_val_acc: Validation accuracy for model 3.</span>
+<span class="sd">        :param running_epochs: Current epoch number.</span>
+<span class="sd">        :param total_epochs: Total number of epochs.</span>
+
+<span class="sd">        This function displays training and validation metrics for multiple models in a specific format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Epochs: </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">running_epochs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">total_epochs</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[================] m1_loss: </span><span class="si">{:.4f}</span><span class="s2"> - m1_acc: </span><span class="si">{:.4f}</span><span class="s2"> - &quot;</span>
+              <span class="s2">&quot;m2_loss: </span><span class="si">{:.4f}</span><span class="s2"> - m2_acc: </span><span class="si">{:.4f}</span><span class="s2"> - &quot;</span>
+              <span class="s2">&quot;m3_loss: </span><span class="si">{:.4f}</span><span class="s2"> - m3_acc: </span><span class="si">{:.4f}</span><span class="s2"> - &quot;</span>
+              <span class="s2">&quot;val1_loss: </span><span class="si">{:.4f}</span><span class="s2"> - val1_acc: </span><span class="si">{:.4f}</span><span class="s2"> - &quot;</span>
+              <span class="s2">&quot;val2_loss: </span><span class="si">{:.4f}</span><span class="s2"> - val2_acc: </span><span class="si">{:.4f}</span><span class="s2"> - &quot;</span>
+              <span class="s2">&quot;val3_loss: </span><span class="si">{:.4f}</span><span class="s2"> - val3_acc: </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model1_train_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                  <span class="n">model1_train_acc</span><span class="p">,</span>
+                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model2_train_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                  <span class="n">model2_train_acc</span><span class="p">,</span>
+                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model3_train_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                  <span class="n">model3_train_acc</span><span class="p">,</span>
+                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model1_val_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                  <span class="n">model1_val_acc</span><span class="p">,</span>
+                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model2_val_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                  <span class="n">model2_val_acc</span><span class="p">,</span>
+                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model3_val_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                  <span class="n">model3_val_acc</span>
+              <span class="p">))</span>
+
+<div class="viewcode-block" id="Trainer.performance">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.trainer.Trainer.performance">[docs]</a>
+    <span class="k">def</span> <span class="nf">performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot training and validation loss and accuracy for three different models.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create a subplot with 2 rows and 3 columns</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+        <span class="c1"># Define model names and colors</span>
+        <span class="n">model_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Model 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Model 2&#39;</span><span class="p">,</span> <span class="s1">&#39;Model 3&#39;</span><span class="p">]</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="c1"># Plot training and validation loss for each model</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;m</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_train_loss&#39;</span><span class="p">],</span>
+                            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> Train Loss&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;m</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_val_loss&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> Validation Loss&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> Loss&#39;</span><span class="p">)</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+            <span class="c1"># Plot training and validation accuracy for each model</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;m</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_train_acc&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> Train Accuracy&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;m</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_val_acc&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> Validation Accuracy&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> Accuracy&#39;</span><span class="p">)</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Trainer.train">
+<a class="viewcode-back" href="../../alzheimer_classifier.html#alzheimer_classifier.trainer.Trainer.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_loader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_loader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train multiple models and evaluate their performance over a specified number of epochs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            TRAIN_LOADER: DataLoader for the training dataset.</span>
+<span class="sd">            TEST_LOADER: DataLoader for the testing dataset.</span>
+<span class="sd">            TOTAL_EPOCHS: Total number of epochs for training.</span>
+
+<span class="sd">        This method iteratively trains and evaluates multiple models over a specified number of epochs.</span>
+<span class="sd">        It stores and updates training and validation metrics in a history dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">TRAIN_LOADER</span> <span class="o">=</span> <span class="n">train_loader</span>
+        <span class="n">TEST_LOADER</span>  <span class="o">=</span> <span class="n">test_loader</span>
+        <span class="n">TOTAL_EPOCHS</span> <span class="o">=</span> <span class="n">epochs</span>
+
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">TOTAL_EPOCHS</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">              Lists to store accuracy and loss for each model and each batch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model1_train_pred</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model2_train_pred</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model3_train_pred</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">model_actual_label</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">model1_train_loss</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model2_train_loss</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model3_train_loss</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">X_train_batch</span><span class="p">,</span> <span class="n">y_train_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="n">TRAIN_LOADER</span><span class="p">:</span>
+                <span class="n">X_train_batch</span><span class="p">,</span> <span class="n">y_train_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connect_GPU</span><span class="p">(</span>
+                    <span class="n">independent_data</span><span class="o">=</span><span class="n">X_train_batch</span><span class="p">,</span> <span class="n">dependent_data</span><span class="o">=</span><span class="n">y_train_batch</span><span class="p">)</span>
+
+                <span class="c1"># Do the prediction - train dataset</span>
+                <span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">model3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">(</span><span class="n">X_train_batch</span><span class="p">)</span>
+
+                <span class="c1"># Compute the models loss</span>
+                <span class="n">model1_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model_loss</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">=</span><span class="n">model1</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model1_loss_function</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="n">y_train_batch</span><span class="p">)</span>
+                <span class="n">model2_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model_loss</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">=</span><span class="n">model2</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model2_loss_function</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="n">y_train_batch</span><span class="p">)</span>
+                <span class="n">model3_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model_loss</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">=</span><span class="n">model3</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model3_loss_function</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="n">y_train_batch</span><span class="p">)</span>
+
+                <span class="c1"># Do the backpropagation</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_do_back_propagation</span><span class="p">(</span>
+                    <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model1_optimizer</span><span class="p">,</span> <span class="n">model_loss</span><span class="o">=</span><span class="n">model1_loss</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_do_back_propagation</span><span class="p">(</span>
+                    <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model2_optimizer</span><span class="p">,</span> <span class="n">model_loss</span><span class="o">=</span><span class="n">model2_loss</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_do_back_propagation</span><span class="p">(</span>
+                    <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model3_optimizer</span><span class="p">,</span> <span class="n">model_loss</span><span class="o">=</span><span class="n">model3_loss</span><span class="p">)</span>
+
+                <span class="c1"># Compute the predicted labels</span>
+                <span class="n">model1_predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_predicted_label</span><span class="p">(</span>
+                    <span class="n">model_prediction</span><span class="o">=</span><span class="n">model1</span><span class="p">)</span>
+                <span class="n">model2_predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_predicted_label</span><span class="p">(</span>
+                    <span class="n">model_prediction</span><span class="o">=</span><span class="n">model2</span><span class="p">)</span>
+                <span class="n">model3_predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_predicted_label</span><span class="p">(</span>
+                    <span class="n">model_prediction</span><span class="o">=</span><span class="n">model3</span><span class="p">)</span>
+
+                <span class="c1"># Compute the actual labels</span>
+                <span class="n">model_actual_label</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_compute_actual_label</span><span class="p">(</span><span class="n">actual_label</span><span class="o">=</span><span class="n">y_train_batch</span><span class="p">))</span>
+
+                <span class="c1"># Store all preds and loss into list</span>
+                <span class="n">model1_train_pred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model1_predicted</span><span class="p">)</span>
+                <span class="n">model2_train_pred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model2_predicted</span><span class="p">)</span>
+                <span class="n">model3_train_pred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model3_predicted</span><span class="p">)</span>
+
+                <span class="n">model1_train_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model1_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">model2_train_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model2_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">model3_train_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model3_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+            <span class="c1"># Compute the accuracy</span>
+            <span class="n">model1_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_accuracy</span><span class="p">(</span>
+                <span class="n">actual_label</span><span class="o">=</span><span class="n">model_actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="n">model1_train_pred</span><span class="p">)</span>
+            <span class="n">model2_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_accuracy</span><span class="p">(</span>
+                <span class="n">actual_label</span><span class="o">=</span><span class="n">model_actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="n">model2_train_pred</span><span class="p">)</span>
+            <span class="n">model3_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_accuracy</span><span class="p">(</span>
+                <span class="n">actual_label</span><span class="o">=</span><span class="n">model_actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="n">model3_train_pred</span><span class="p">)</span>
+
+            <span class="c1"># Store accuracy &amp; loss into the history</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m1_train_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model1_train_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m2_train_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model2_train_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m3_train_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model3_train_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m1_train_acc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model1_accuracy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m2_train_acc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model2_accuracy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m3_train_acc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model3_accuracy</span><span class="p">)</span>
+
+            <span class="n">model1_test_pred</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model2_test_pred</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model3_test_pred</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">model_actual_label</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">model1_test_loss</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model2_test_loss</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">model3_test_loss</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">X_test_batch</span><span class="p">,</span> <span class="n">y_test_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="n">TEST_LOADER</span><span class="p">:</span>
+                <span class="n">X_test_batch</span><span class="p">,</span> <span class="n">y_test_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connect_GPU</span><span class="p">(</span>
+                    <span class="n">independent_data</span><span class="o">=</span><span class="n">X_test_batch</span><span class="p">,</span> <span class="n">dependent_data</span><span class="o">=</span><span class="n">y_test_batch</span><span class="p">)</span>
+                <span class="c1"># Do the prediction - test dataset</span>
+                <span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">model3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">(</span><span class="n">X_test_batch</span><span class="p">)</span>
+
+                <span class="c1"># Compute the models loss</span>
+                <span class="n">model1_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model_loss</span><span class="p">(</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">model1</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model1_loss_function</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="n">y_test_batch</span><span class="p">)</span>
+                <span class="n">model2_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model_loss</span><span class="p">(</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">model2</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model2_loss_function</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="n">y_test_batch</span><span class="p">)</span>
+                <span class="n">model3_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model_loss</span><span class="p">(</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">model3</span><span class="p">,</span> <span class="n">loss_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model3_loss_function</span><span class="p">,</span> <span class="n">actual_label</span><span class="o">=</span><span class="n">y_test_batch</span><span class="p">)</span>
+
+                <span class="c1"># Compute the predicted labels</span>
+                <span class="n">model1_predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_predicted_label</span><span class="p">(</span>
+                    <span class="n">model_prediction</span> <span class="o">=</span> <span class="n">model1</span><span class="p">)</span>
+                <span class="n">model2_predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_predicted_label</span><span class="p">(</span>
+                    <span class="n">model_prediction</span> <span class="o">=</span> <span class="n">model2</span><span class="p">)</span>
+                <span class="n">model3_predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_predicted_label</span><span class="p">(</span>
+                    <span class="n">model_prediction</span> <span class="o">=</span> <span class="n">model3</span><span class="p">)</span>
+
+                <span class="c1"># Compute the actual labels</span>
+                <span class="n">model_actual_label</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_compute_actual_label</span><span class="p">(</span><span class="n">actual_label</span><span class="o">=</span><span class="n">y_test_batch</span><span class="p">))</span>
+
+                <span class="c1"># Store all preds and loss into list</span>
+                <span class="n">model1_test_pred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model1_predicted</span><span class="p">)</span>
+                <span class="n">model2_test_pred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model2_predicted</span><span class="p">)</span>
+                <span class="n">model3_test_pred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model3_predicted</span><span class="p">)</span>
+
+                <span class="n">model1_test_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model1_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">model2_test_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model2_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="n">model3_test_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model3_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+            <span class="c1"># Compute the accuracy</span>
+            <span class="n">model1_val_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_accuracy</span><span class="p">(</span>
+                <span class="n">actual_label</span> <span class="o">=</span> <span class="n">model_actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="n">model1_test_pred</span><span class="p">)</span>
+            <span class="n">model2_val_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_accuracy</span><span class="p">(</span>
+                <span class="n">actual_label</span> <span class="o">=</span> <span class="n">model_actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="n">model2_test_pred</span><span class="p">)</span>
+            <span class="n">model3_val_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_accuracy</span><span class="p">(</span>
+                <span class="n">actual_label</span> <span class="o">=</span> <span class="n">model_actual_label</span><span class="p">,</span> <span class="n">predicted_label</span><span class="o">=</span><span class="n">model3_test_pred</span><span class="p">)</span>
+
+            <span class="c1"># Store accuracy &amp; loss into the history</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m1_val_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model1_test_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m2_val_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model2_test_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m3_val_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model3_test_loss</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m1_val_acc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model1_val_accuracy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m2_val_acc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model2_val_accuracy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;m3_val_acc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model3_val_accuracy</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_display</span><span class="p">(</span><span class="n">model1_train_loss</span> <span class="o">=</span> <span class="n">model1_train_loss</span><span class="p">,</span>
+                          <span class="n">model2_train_loss</span> <span class="o">=</span> <span class="n">model2_train_loss</span><span class="p">,</span>
+                          <span class="n">model3_train_loss</span> <span class="o">=</span> <span class="n">model3_train_loss</span><span class="p">,</span>
+                          <span class="n">model1_train_acc</span>  <span class="o">=</span> <span class="n">model1_accuracy</span><span class="p">,</span>
+                          <span class="n">model2_train_acc</span>  <span class="o">=</span> <span class="n">model2_accuracy</span><span class="p">,</span>
+                          <span class="n">model3_train_acc</span>  <span class="o">=</span> <span class="n">model3_accuracy</span><span class="p">,</span>
+                          <span class="n">model1_val_loss</span>   <span class="o">=</span> <span class="n">model1_test_loss</span><span class="p">,</span>
+                          <span class="n">model2_val_loss</span>   <span class="o">=</span> <span class="n">model2_test_loss</span><span class="p">,</span>
+                          <span class="n">model3_val_loss</span>   <span class="o">=</span> <span class="n">model3_test_loss</span><span class="p">,</span>
+                          <span class="n">model1_val_acc</span>    <span class="o">=</span> <span class="n">model1_val_accuracy</span><span class="p">,</span>
+                          <span class="n">model2_val_acc</span>    <span class="o">=</span> <span class="n">model2_val_accuracy</span><span class="p">,</span>
+                          <span class="n">model3_val_acc</span>    <span class="o">=</span> <span class="n">model3_val_accuracy</span><span class="p">,</span>
+                          <span class="n">running_epochs</span>    <span class="o">=</span> <span class="n">epoch</span><span class="p">,</span>
+                          <span class="n">total_epochs</span>      <span class="o">=</span> <span class="n">TOTAL_EPOCHS</span><span class="p">)</span></div>
+</div>
+
+          
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+  <span class="n">trainer_</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">classifier</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">device</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AI Sajib.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
