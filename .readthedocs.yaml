@@ -9,7 +9,7 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.12"
+    python: "3.9"
     # Additional tools can be specified here
 
 # Build documentation in the "docs/" directory with Sphinx
@@ -27,6 +27,5 @@ python:
      - requirements: docs/requirements.txt
      - method: pip
        path: .
-
-# Using pip install -e .
-# This will install your package in editable mode
+       extra_requirements:
+         - editable
