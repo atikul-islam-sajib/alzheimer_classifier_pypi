@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>alzheimer_classifier package &mdash; alzheimer 0.0.2 documentation</title>
+  <title>alzheimer_classifier package &mdash; Alzheimer_demo 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,12 +15,13 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e3a6060d"></script>
+        <script src="_static/documentation_options.js?v=d45e8c67"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="alzheimer_classifier" href="modules.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,7 +33,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            alzheimer
+            Alzheimer_demo
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -42,81 +43,42 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">alzheimer_classifier package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-alzheimer_classifier.dataset">alzheimer_classifier.dataset module</a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.dataset.EmptyListException"><code class="docutils literal notranslate"><span class="pre">EmptyListException</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data"><code class="docutils literal notranslate"><span class="pre">load_data</span></code></a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data.dataloader"><code class="docutils literal notranslate"><span class="pre">load_data.dataloader()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data.show_distribution"><code class="docutils literal notranslate"><span class="pre">load_data.show_distribution()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.dataset.load_data.show_plot"><code class="docutils literal notranslate"><span class="pre">load_data.show_plot()</span></code></a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alzheimer_classifier</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">alzheimer_classifier package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-alzheimer_classifier.dataset">alzheimer_classifier.dataset module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#alzheimer_classifier.dataset.EmptyListException"><code class="docutils literal notranslate"><span class="pre">EmptyListException</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#alzheimer_classifier.dataset.load_data"><code class="docutils literal notranslate"><span class="pre">load_data</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-alzheimer_classifier.metrics">alzheimer_classifier.metrics module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#alzheimer_classifier.metrics.model_performance"><code class="docutils literal notranslate"><span class="pre">model_performance()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-alzheimer_classifier.model">alzheimer_classifier.model module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#alzheimer_classifier.model.classifier"><code class="docutils literal notranslate"><span class="pre">classifier</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-alzheimer_classifier.trainer">alzheimer_classifier.trainer module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer"><code class="docutils literal notranslate"><span class="pre">Trainer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-alzheimer_classifier">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-alzheimer_classifier.metrics">alzheimer_classifier.metrics module</a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.metrics.model_performance"><code class="docutils literal notranslate"><span class="pre">model_performance()</span></code></a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#module-alzheimer_classifier.model">alzheimer_classifier.model module</a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier"><code class="docutils literal notranslate"><span class="pre">classifier</span></code></a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.LEFT_CONV"><code class="docutils literal notranslate"><span class="pre">classifier.LEFT_CONV</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.MIDDLE_CONV"><code class="docutils literal notranslate"><span class="pre">classifier.MIDDLE_CONV</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.RIGHT_CONV"><code class="docutils literal notranslate"><span class="pre">classifier.RIGHT_CONV</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.FC_LAYER"><code class="docutils literal notranslate"><span class="pre">classifier.FC_LAYER</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.LEFT_FC"><code class="docutils literal notranslate"><span class="pre">classifier.LEFT_FC</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.MIDD_FC"><code class="docutils literal notranslate"><span class="pre">classifier.MIDD_FC</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.RIGHT_FC"><code class="docutils literal notranslate"><span class="pre">classifier.RIGHT_FC</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.forward"><code class="docutils literal notranslate"><span class="pre">classifier.forward()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.fully_connected_layer"><code class="docutils literal notranslate"><span class="pre">classifier.fully_connected_layer()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.left_conv_layer"><code class="docutils literal notranslate"><span class="pre">classifier.left_conv_layer()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.left_fc_layer"><code class="docutils literal notranslate"><span class="pre">classifier.left_fc_layer()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.middle_conv_layer"><code class="docutils literal notranslate"><span class="pre">classifier.middle_conv_layer()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.middle_fc_layer"><code class="docutils literal notranslate"><span class="pre">classifier.middle_fc_layer()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.model_details"><code class="docutils literal notranslate"><span class="pre">classifier.model_details()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.right_conv_layer"><code class="docutils literal notranslate"><span class="pre">classifier.right_conv_layer()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.model.classifier.right_fc_layer"><code class="docutils literal notranslate"><span class="pre">classifier.right_fc_layer()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-alzheimer_classifier.trainer">alzheimer_classifier.trainer module</a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer"><code class="docutils literal notranslate"><span class="pre">Trainer</span></code></a><ul>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model1_loss_function"><code class="docutils literal notranslate"><span class="pre">Trainer.model1_loss_function</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model2_loss_function"><code class="docutils literal notranslate"><span class="pre">Trainer.model2_loss_function</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model3_loss_function"><code class="docutils literal notranslate"><span class="pre">Trainer.model3_loss_function</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model1_lr"><code class="docutils literal notranslate"><span class="pre">Trainer.model1_lr</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model2_lr"><code class="docutils literal notranslate"><span class="pre">Trainer.model2_lr</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model3_lr"><code class="docutils literal notranslate"><span class="pre">Trainer.model3_lr</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model1_optimizer"><code class="docutils literal notranslate"><span class="pre">Trainer.model1_optimizer</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model2_optimizer"><code class="docutils literal notranslate"><span class="pre">Trainer.model2_optimizer</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.model3_optimizer"><code class="docutils literal notranslate"><span class="pre">Trainer.model3_optimizer</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL1_ACCURACY"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL1_ACCURACY</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL2_ACCURACY"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL2_ACCURACY</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL3_ACCURACY"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL3_ACCURACY</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL1_TOTAL_LOSS"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL1_TOTAL_LOSS</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL2_TOTAL_LOSS"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL2_TOTAL_LOSS</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.MODEL3_TOTAL_LOSS"><code class="docutils literal notranslate"><span class="pre">Trainer.MODEL3_TOTAL_LOSS</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.performance"><code class="docutils literal notranslate"><span class="pre">Trainer.performance()</span></code></a></li>
-<li><a class="reference internal" href="#alzheimer_classifier.trainer.Trainer.train"><code class="docutils literal notranslate"><span class="pre">Trainer.train()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-alzheimer_classifier">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
+
         </div>
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">alzheimer</a>
+          <a href="index.html">Alzheimer_demo</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -124,6 +86,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">alzheimer_classifier</a></li>
       <li class="breadcrumb-item active">alzheimer_classifier package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/alzheimer_classifier.rst.txt" rel="nofollow"> View page source</a>
@@ -819,12 +782,14 @@ It stores and updates training and validation metrics in a history dictionary.</
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="alzheimer_classifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, AI Sajib.</p>
+    <p>&#169; Copyright 2024, Atikul Islam Sajib.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

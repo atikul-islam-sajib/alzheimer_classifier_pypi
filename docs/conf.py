@@ -11,16 +11,16 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'alzheimer'
-copyright = '2024, AI Sajib'
-author = 'AI Sajib'
-release = '0.0.2'
+project = 'Alzheimer_demo'
+copyright = '2024, Atikul Islam Sajib'
+author = 'Atikul Islam Sajib'
+release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-        'sphinx.ext.autodoc',
+            'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.coverage'
