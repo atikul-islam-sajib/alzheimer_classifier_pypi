@@ -1,5 +1,0 @@
-numpy 
-pandas 
-opencv-python
-zipfile36
-matplotlib
