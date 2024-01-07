@@ -3,4 +3,3 @@ pandas
 opencv-python
 zipfile36
 matplotlib
-torch
