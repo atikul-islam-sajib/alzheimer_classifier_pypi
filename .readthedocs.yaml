@@ -10,10 +10,7 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
-    # You can also specify other tool versions:
-    # nodejs: "19"
-    # rust: "1.64"
-    # golang: "1.19"
+    # Additional tools can be specified here
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
@@ -24,9 +21,12 @@ formats:
    - pdf
    - epub
 
-# Optional but recommended, declare the Python requirements required
-# to build your documentation
-# See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
+# Declare the Python requirements required to build your documentation
 python:
    install:
-   - requirements: docs/requirements.txt
+     - requirements: docs/requirements.txt
+     - method: pip
+       path: .
+
+# Using pip install -e .
+# This will install your package in editable mode
