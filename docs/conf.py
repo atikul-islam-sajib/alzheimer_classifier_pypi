@@ -5,13 +5,12 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
-
+sys.path.insert(0, os.path.abspath('../alzheimer_classifier'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Alzheimer_demo'
+project = 'Alzheimer Classifier'
 copyright = '2024, Atikul Islam Sajib'
 author = 'Atikul Islam Sajib'
 release = '0.0.1'
@@ -20,7 +19,7 @@ release = '0.0.1'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-            'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.coverage'
