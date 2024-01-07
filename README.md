@@ -1,0 +1,1 @@
+to check the doc:   https://alzheimer-classifier-pypi.readthedocs.io/en/latest/
